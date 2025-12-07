@@ -28,11 +28,7 @@ test-1-cocoa-adoption/
     └── requirements.md
 ```
 
-## Analysis Tasks
-
-# Test 1: Cocoa Adoption Analysis
-
-## Overview
+## Analysis Overview
 
 This analysis automatically evaluates cocoa farming practices and calculates adoption levels for farmers based on 14 key agricultural practices. The system processes Excel data and generates comprehensive reports with visualizations.
 
@@ -139,14 +135,15 @@ For analysis purposes:
 ```
 test-1-cocoa-adoption/
 ├── raw/
-│   └── test_1_cocoa_adoption_raw.xlsx     # Input data
+│   └── test_1_cocoa_adoption_raw.xlsx           # Input data
 ├── scripts/
-│   └── test1_analysis.py                  # Analysis script
-└── results/                               # Auto-generated results
-    ├── COMPREHENSIVE_REPORT.txt           # Full text report
-    ├── cleaned_data.csv                   # Cleaned dataset
-    ├── data_with_adoption_scores.csv      # Data + calculated scores
-    ├── analysis_summary.csv               # Summary statistics
+│   └── test1_analysis.py                        # Analysis script
+├── cleaned/                                     # Auto-generated cleaned data
+│   └── cleaned_data.csv                         # Cleaned dataset
+└── results/                                     # Auto-generated results
+    ├── COMPREHENSIVE_REPORT.txt                 # Full text report
+    ├── data_with_adoption_scores.csv            # Data + calculated scores
+    ├── analysis_summary.csv                     # Summary statistics
     ├── 01_adoption_distribution_pie.png
     ├── 02_adoption_distribution_bar.png
     ├── 03_farm_size_by_adoption_boxplot.png
@@ -156,9 +153,32 @@ test-1-cocoa-adoption/
     ├── 07_practice_performance_ranking.png
     └── 08_adoption_score_distribution.png
 ```
+
+## Generated Files
+
+### In `cleaned/` folder:
+- **cleaned_data.csv** - Cleaned dataset with missing values handled and duplicates removed
+
+### In `results/` folder:
+
+**Data Files:**
+- **COMPREHENSIVE_REPORT.txt** - Complete analysis report with findings and recommendations
+- **data_with_adoption_scores.csv** - Original data plus calculated adoption scores
+- **analysis_summary.csv** - Summary statistics and key metrics
+
+**Visualizations:**
+- **01_adoption_distribution_pie.png** - Pie chart showing adoption level distribution
+- **02_adoption_distribution_bar.png** - Bar chart of farmer counts by adoption level
+- **03_farm_size_by_adoption_boxplot.png** - Farm size distribution across adoption levels
+- **04_farm_size_vs_adoption_scatter.png** - Relationship between farm size and adoption
+- **05_adoption_by_region_stacked.png** - Regional adoption patterns
+- **06_practice_correlation_heatmap.png** - Correlations between farming practices
+- **07_practice_performance_ranking.png** - Practice scores from worst to best
+- **08_adoption_score_distribution.png** - Histogram of adoption percentages
+
 ## Understanding the Results
 
-### Interpretation
+### Interpretation Example
 
 **Result for 01_adoption_distribution_pie**
 - 79% Medium, 11% Good, 10% Bad
@@ -173,20 +193,47 @@ test-1-cocoa-adoption/
 - Share best practices from Good performers
 - Intensive support for Bad performers
 
-### For Agricultural Extension Officers
+### For Different Users
+
+**Agricultural Extension Officers:**
 - Identify farmers needing support
 - Plan targeted training programs
 - Track improvement over time
 
-### For Program Managers
+**Program Managers:**
 - Allocate resources to regions
 - Measure program effectiveness
 - Report to stakeholders
 
-### For Researchers
+**Researchers:**
 - Analyze adoption patterns
 - Study correlations between practices
 - Identify success factors
+
+## Running the Analysis
+
+### Method 1: Locally
+```bash
+# Navigate to project directory
+cd excel-model-analyzer
+
+# Install dependencies
+pip install pandas openpyxl matplotlib seaborn numpy
+
+# Run analysis
+python excel-data/test-1-cocoa-adoption/scripts/test1_analysis.py
+```
+
+### Method 2: GitHub Actions (Automatic)
+- Push changes to `excel-data/test-1-cocoa-adoption/**`
+- Analysis runs automatically
+- Results committed back to repository
+
+### Method 3: GitHub Actions (Manual)
+1. Go to repository **Actions** tab
+2. Click **"Test Cocoa Analysis"**
+3. Click **"Run workflow"**
+4. Download artifacts or view results in repository
 
 ## Expected Results
 
@@ -205,23 +252,50 @@ test-1-cocoa-adoption/
 ## Troubleshooting
 
 ### Issue: "File not found" error
-**Solution:** Check that Excel file path matches exactly in the script (line 28)
+**Solution:** 
+- Check that Excel file exists at `excel-data/test-1-cocoa-adoption/raw/test_1_cocoa_adoption_raw.xlsx`
+- Verify file name spelling and extension
 
 ### Issue: "Column not found" error
-**Solution:** Verify Excel column names match exactly (case-sensitive, check for extra spaces)
+**Solution:** 
+- Verify Excel column names match exactly (case-sensitive)
+- Check for extra spaces in column names
+- Open Excel file and compare with required columns list above
 
 ### Issue: All farmers scored as "Medium"
-**Solution:** Check if practice column values match the scoring keywords, may need to customize `score_practice()` function
+**Solution:** 
+- Check if practice column values match the scoring keywords
+- May need to customize `score_practice()` function for your specific data values
 
 ### Issue: Charts look wrong
-**Solution:** Verify data quality - check for unusual values or missing data
+**Solution:** 
+- Verify data quality - check for unusual values or missing data
+- Look at the console output for data quality warnings
 
 ### Issue: GitHub Actions fails
-**Solution:** Check the Actions tab logs for specific error messages
+**Solution:** 
+- Check the Actions tab logs for specific error messages
+- Verify all required files are in correct locations
+- Ensure Excel file is not corrupted
+
+### Issue: Results not showing in repository
+**Solution:**
+- Check if workflow has `contents: write` permission
+- Verify git commit step completed successfully in Actions logs
+- Look in `excel-data/test-1-cocoa-adoption/results/` and `excel-data/test-1-cocoa-adoption/cleaned/`
 
 ## Notes
 
-- **Data Privacy**: Farmer names are included in cleaned data
-- **Score Interpretation**: Scoring is based on keyword matching
-- **Updates**: When update the Excel file, results are automatically regenerated
+- **Data Privacy**: Farmer names are included in cleaned data files
+- **Score Interpretation**: Scoring is based on keyword matching - customize if needed
+- **Updates**: When you update the Excel file, re-run the analysis to regenerate results
 - **Backup**: Original data is never modified - cleaned versions are saved separately
+- **Path Structure**: Results and cleaned data are now organized within the test-1-cocoa-adoption folder for better organization
+
+## Support
+
+For issues or questions:
+1. Check the troubleshooting section above
+2. Review the comprehensive report for analysis details
+3. Examine GitHub Actions logs for error messages
+4. Verify input data format matches requirements
