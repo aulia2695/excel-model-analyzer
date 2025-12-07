@@ -173,15 +173,21 @@ if invalid_indices:
 # Create GeoDataFrame
 gdf = gpd.GeoDataFrame(df_clean, geometry='geometry', crs='EPSG:4326')
 
+# Convert area_ha to numeric (FIX FOR THE ERROR)
+if 'area_ha' in gdf.columns:
+    gdf['area_ha'] = pd.to_numeric(gdf['area_ha'], errors='coerce')
+
 # Calculate actual areas in hectares
 gdf['calculated_area_ha'] = gdf.geometry.to_crs('EPSG:3857').area / 10000
 
 print(f"   ✓ Created GeoDataFrame with {len(gdf)} valid polygons")
 print(f"   ✓ Total area: {gdf['calculated_area_ha'].sum():.2f} hectares")
 
-# Compare with reported area if available
+# Compare with reported area if available (FIXED LINE 184)
 if 'area_ha' in gdf.columns and gdf['area_ha'].notna().any():
-    print(f"   ℹ Reported area (from Kobo): {gdf['area_ha'].sum():.2f} hectares")
+    reported_area_sum = gdf['area_ha'].sum()
+    if pd.notna(reported_area_sum):
+        print(f"   ℹ Reported area (from Kobo): {reported_area_sum:.2f} hectares")
     print(f"   ℹ Calculated area (from GPS): {gdf['calculated_area_ha'].sum():.2f} hectares")
 
 # =============================================================================
