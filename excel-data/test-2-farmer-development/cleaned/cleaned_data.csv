@@ -1,0 +1,8 @@
+Additional guidance,Unnamed: 1
+,
+,The attached data contains the baseline (year) information of our cocoa farmers residing in the Blolequin and San Pedro district of Ivory Coast
+,The attached file contains the below-mentioned data points:
+1.0,"Basic details: Farmer Name, farmer code, village name, gender, education level, total farm area, farm production, average cocoa price."
+2.0,Recommendation given to the farmer for his plot along with the variables (adoption observations) that needs to be improved. 
+3.0,There are 14 different variables on which the farmers 1. Result (observation of current practice) and Competence (Ability to implement improved practiced) are judged; in case they are repeated in database it means there was a survey at different moments; for which the first entries are baseline and later entries are follow-up visits
+4.0,"Interpretation of the practiced are: Good (G), Medium (M), Bad (B)"
