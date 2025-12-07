@@ -6,8 +6,7 @@ Designed for GitHub Actions automation
 
 import pandas as pd
 import geopandas as gpd
-from shapely import wkt
-from shapely.geometry import shape
+from shapely.geometry import Polygon, Point
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.patches import Patch
@@ -59,6 +58,48 @@ os.makedirs(RESULTS_PATH, exist_ok=True)
 os.makedirs(CLEANED_PATH, exist_ok=True)
 
 # =============================================================================
+# HELPER FUNCTION: PARSE GPS TRACE TO POLYGON
+# =============================================================================
+
+def parse_gps_trace_to_polygon(trace_string):
+    """
+    Parse GPS trace string to Shapely Polygon
+    Format: "lat lon elevation accuracy;lat lon elevation accuracy;..."
+    Example: "3.049306 98.242285 540.5 7.85;3.0491804 98.2420313 538.6 3.936;..."
+    """
+    try:
+        if pd.isna(trace_string) or str(trace_string).strip() == '':
+            return None
+        
+        # Split by semicolon to get individual points
+        points = str(trace_string).split(';')
+        
+        # Parse each point (format: lat lon elevation accuracy)
+        coordinates = []
+        for point in points:
+            parts = point.strip().split()
+            if len(parts) >= 2:  # Need at least lat and lon
+                lat = float(parts[0])
+                lon = float(parts[1])
+                # Note: Shapely uses (lon, lat) order, not (lat, lon)
+                coordinates.append((lon, lat))
+        
+        # Need at least 3 points to make a polygon
+        if len(coordinates) < 3:
+            return None
+        
+        # Close the polygon if not already closed
+        if coordinates[0] != coordinates[-1]:
+            coordinates.append(coordinates[0])
+        
+        # Create polygon
+        return Polygon(coordinates)
+    
+    except Exception as e:
+        print(f"   ⚠ Error parsing GPS trace: {str(e)[:100]}")
+        return None
+
+# =============================================================================
 # STEP 1: LOAD AND PREPARE DATA
 # =============================================================================
 
@@ -81,8 +122,8 @@ print(f"   ✓ Loaded {len(df)} records")
 essential_cols = {
     'ID Petani': 'farmer_name',
     'ID Kebun': 'polygon_id',
-    'Polygon Area': 'area_ha',
-    'Lokasi Kebun': 'geometry_wkt',
+    'Polygon Area': 'gps_trace',  # This contains the GPS trace!
+    'Luas Lahan Kebun Kakao': 'area_ha',  # Actual area value
     '_Lokasi Kebun_latitude': 'latitude',
     '_Lokasi Kebun_longitude': 'longitude',
     '_Lokasi Kebun_precision': 'gps_precision'
@@ -99,26 +140,26 @@ if missing_cols:
 df_clean = df[list(available_cols.keys())].copy()
 df_clean.columns = list(available_cols.values())
 
-# Remove rows with null geometries
-df_clean = df_clean[df_clean['geometry_wkt'].notna()].copy()
-print(f"   ✓ {len(df_clean)} records with valid geometries")
+# Remove rows with null GPS traces
+df_clean = df_clean[df_clean['gps_trace'].notna()].copy()
+print(f"   ✓ {len(df_clean)} records with GPS trace data")
 
 # =============================================================================
-# STEP 2: CREATE GEODATAFRAME
+# STEP 2: CREATE GEODATAFRAME FROM GPS TRACES
 # =============================================================================
 
-print("\n[2/7] Converting to spatial data...")
+print("\n[2/7] Converting GPS traces to polygons...")
 
-# Parse WKT geometries
+# Parse GPS traces into polygons
 geometries = []
 invalid_indices = []
 
-for idx, wkt_string in enumerate(df_clean['geometry_wkt']):
-    try:
-        geom = wkt.loads(str(wkt_string))
+for idx, trace in enumerate(df_clean['gps_trace']):
+    geom = parse_gps_trace_to_polygon(trace)
+    if geom is not None:
         geometries.append(geom)
-    except Exception as e:
-        print(f"   ⚠ Invalid geometry at row {idx}: {str(e)[:50]}")
+    else:
+        print(f"   ⚠ Invalid GPS trace at row {idx}")
         invalid_indices.append(idx)
         geometries.append(None)
 
@@ -127,16 +168,21 @@ df_clean['geometry'] = geometries
 # Remove invalid geometries
 if invalid_indices:
     df_clean = df_clean[df_clean['geometry'].notna()].copy()
-    print(f"   ✓ Removed {len(invalid_indices)} invalid geometries")
+    print(f"   ✓ Removed {len(invalid_indices)} invalid GPS traces")
 
 # Create GeoDataFrame
 gdf = gpd.GeoDataFrame(df_clean, geometry='geometry', crs='EPSG:4326')
 
-# Calculate actual areas in hectares (for validation)
+# Calculate actual areas in hectares
 gdf['calculated_area_ha'] = gdf.geometry.to_crs('EPSG:3857').area / 10000
 
 print(f"   ✓ Created GeoDataFrame with {len(gdf)} valid polygons")
 print(f"   ✓ Total area: {gdf['calculated_area_ha'].sum():.2f} hectares")
+
+# Compare with reported area if available
+if 'area_ha' in gdf.columns and gdf['area_ha'].notna().any():
+    print(f"   ℹ Reported area (from Kobo): {gdf['area_ha'].sum():.2f} hectares")
+    print(f"   ℹ Calculated area (from GPS): {gdf['calculated_area_ha'].sum():.2f} hectares")
 
 # =============================================================================
 # STEP 3: DETECT OVERLAPS
@@ -388,14 +434,14 @@ with pd.ExcelWriter(results_file, engine='openpyxl') as writer:
         'Value': [
             len(gdf),
             len(gdf_cleaned),
-            gdf['calculated_area_ha'].sum().round(2),
-            gdf_cleaned['calculated_area_ha'].sum().round(2),
-            gdf['has_overlap'].sum(),
+            round(gdf['calculated_area_ha'].sum(), 2) if len(gdf) > 0 else 0,
+            round(gdf_cleaned['calculated_area_ha'].sum(), 2) if len(gdf_cleaned) > 0 else 0,
+            int(gdf['has_overlap'].sum()) if len(gdf) > 0 else 0,
             len(overlap_df),
             len(gdf) - len(gdf_cleaned),
-            gdf['in_forest'].sum(),
-            gdf_cleaned['in_forest'].sum(),
-            gdf['calculated_area_ha'].mean().round(2)
+            int(gdf['in_forest'].sum()) if len(gdf) > 0 else 0,
+            int(gdf_cleaned['in_forest'].sum()) if len(gdf_cleaned) > 0 else 0,
+            round(gdf['calculated_area_ha'].mean(), 2) if len(gdf) > 0 else 0
         ]
     })
     summary.to_excel(writer, sheet_name='Summary Statistics', index=False)
