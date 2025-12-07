@@ -1,0 +1,55 @@
+name: Cocoa Farm Geospatial Analysis
+
+on:
+  workflow_dispatch:
+    inputs:
+      forest_analysis:
+        description: 'Include forest area analysis?'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  analyze-cocoa-farms:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          pip install pandas geopandas shapely matplotlib openpyxl xlsxwriter
+          pip install rtree
+          
+      - name: Run geospatial analysis
+        env:
+          FOREST_ANALYSIS: ${{ github.event.inputs.forest_analysis }}
+        run: |
+          python scripts/analyze_cocoa_farms.py
+          
+      - name: Commit and push results
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add excel-data/test-3-geospatial/results/
+          git add excel-data/test-3-geospatial/cleaned/
+          git diff --staged --quiet || git commit -m "🤖 Auto-generated: Cocoa farm analysis results [$(date +'%Y-%m-%d %H:%M:%S')]"
+          git push
+          
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: analysis-results
+          path: |
+            excel-data/test-3-geospatial/results/
+            excel-data/test-3-geospatial/cleaned/
+          retention-days: 30
