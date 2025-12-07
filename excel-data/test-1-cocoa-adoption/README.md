@@ -32,11 +32,11 @@ test-1-cocoa-adoption/
 
 # Test 1: Cocoa Adoption Analysis
 
-## 📋 Overview
+## Overview
 
 This analysis automatically evaluates cocoa farming practices and calculates adoption levels for farmers based on 14 key agricultural practices. The system processes Excel data and generates comprehensive reports with visualizations.
 
-## 🎯 Purpose
+## Purpose
 
 **Main Objectives:**
 - Assess farmer adoption of best cocoa farming practices
@@ -44,11 +44,11 @@ This analysis automatically evaluates cocoa farming practices and calculates ado
 - Provide data-driven recommendations for agricultural extension programs
 - Track regional and farm-size patterns in adoption
 
-## 📊 Data Structure
+## Data Structure
 
 ### Required Excel Columns
 
-Your Excel file (`test_1_cocoa_adoption_raw.xlsx`) must contain these columns:
+Excel file (`test_1_cocoa_adoption_raw.xlsx`) must contain these columns:
 
 | Column Name | Type | Description |
 |-------------|------|-------------|
@@ -79,7 +79,7 @@ These 14 columns are evaluated to calculate adoption levels:
 13. `Fertilizer formulation` - Type of fertilizer used
 14. `Fertilizer application` - Fertilizer application methods
 
-## 🔢 Adoption Scoring System
+## Adoption Scoring System
 
 ### How Practices are Scored
 
@@ -105,7 +105,7 @@ For analysis purposes:
 - Medium = 1
 - Bad = 0
 
-## 🤖 Automated Analysis
+## Automated Analysis
 
 ### What Gets Analyzed
 
@@ -134,12 +134,12 @@ For analysis purposes:
    - Actionable recommendations
    - Next steps
 
-## 📁 File Structure
+## File Structure
 
 ```
 test-1-cocoa-adoption/
 ├── raw/
-│   └── test_1_cocoa_adoption_raw.xlsx    # Your input data
+│   └── test_1_cocoa_adoption_raw.xlsx     # Input data
 ├── scripts/
 │   └── test1_analysis.py                  # Analysis script
 └── results/                               # Auto-generated results
@@ -188,34 +188,6 @@ test-1-cocoa-adoption/
 - Study correlations between practices
 - Identify success factors
 
-## Customization Options
-
-### Adjusting Score Thresholds
-
-Edit line ~150 in `test1_analysis.py`:
-
-```python
-def categorize_adoption(percentage):
-    if percentage >= 66.67:  # Change this threshold
-        return 'Good'
-    elif percentage >= 33.33:  # Change this threshold
-        return 'Medium'
-    else:
-        return 'Bad'
-```
-
-### Modifying Practice Scoring
-
-Edit the `score_practice()` function (line ~60) to customize how practice values are interpreted based on your specific data.
-
-### Adding New Practices
-
-To include additional practice columns:
-
-1. Add column name to `practice_columns` list (line ~45)
-2. Ensure the column exists in your Excel file
-3. Re-run the analysis
-
 ## Expected Results
 
 **Typical Analysis Shows:**
@@ -246,3 +218,10 @@ To include additional practice columns:
 
 ### Issue: GitHub Actions fails
 **Solution:** Check the Actions tab logs for specific error messages
+
+## Notes
+
+- **Data Privacy**: Farmer names are included in cleaned data
+- **Score Interpretation**: Scoring is based on keyword matching
+- **Updates**: When update the Excel file, results are automatically regenerated
+- **Backup**: Original data is never modified - cleaned versions are saved separately
