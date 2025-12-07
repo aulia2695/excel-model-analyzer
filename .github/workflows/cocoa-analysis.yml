@@ -1,52 +1,55 @@
-name: Cocoa Farm Geospatial Analysis
+name: Analyze Cocoa Farms
 
 on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'excel-data/test-3-geospatial/raw/**'
   workflow_dispatch:
-    inputs:
-      forest_analysis:
-        description: 'Include forest area analysis?'
-        required: true
-        default: 'false'
-        type: choice
-        options:
-          - 'true'
-          - 'false'
+
+# Add permissions to allow GitHub Actions to push results
+permissions:
+  contents: write
 
 jobs:
-  analyze-cocoa-farms:
+  analyze:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-        
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
+      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-          
+      
       - name: Install dependencies
         run: |
-          pip install pandas geopandas shapely matplotlib openpyxl xlsxwriter
-          pip install rtree
-          
+          python -m pip install --upgrade pip
+          pip install pandas openpyxl geopandas shapely matplotlib numpy
+      
       - name: Run geospatial analysis
-        env:
-          FOREST_ANALYSIS: ${{ github.event.inputs.forest_analysis }}
         run: |
           python scripts/analyze_cocoa_farms.py
-          
+        env:
+          FOREST_ANALYSIS: 'false'  # Set to 'true' if you have forest data
+      
       - name: Commit and push results
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add excel-data/test-3-geospatial/results/
           git add excel-data/test-3-geospatial/cleaned/
-          git diff --staged --quiet || git commit -m "🤖 Auto-generated: Cocoa farm analysis results [$(date +'%Y-%m-%d %H:%M:%S')]"
+          git commit -m "Add analysis results - $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
           git push
-          
+      
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
+        if: always()
         with:
           name: analysis-results
           path: |
