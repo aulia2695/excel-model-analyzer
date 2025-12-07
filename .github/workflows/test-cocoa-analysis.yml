@@ -1,0 +1,46 @@
+name: Test Cocoa Analysis
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'excel-data/test-1-cocoa-adoption/**'
+  workflow_dispatch:  # Allows manual trigger from Actions tab
+
+jobs:
+  run-analysis:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write  # Needed to push results back
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install pandas openpyxl matplotlib seaborn numpy
+    
+    - name: Run analysis
+      run: |
+        python excel-data/test-1-cocoa-adoption/scripts/test1_analysis.py
+    
+    - name: Upload results as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: cocoa-analysis-results
+        path: results/
+        retention-days: 30
+    
+    - name: Commit results back to repository
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "GitHub Actions Bot"
+        git add results/
+        git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 Auto: Update cocoa analysis results" && git push)
