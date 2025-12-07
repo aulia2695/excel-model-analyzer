@@ -29,23 +29,93 @@ print("\n[STEP 1] Loading data...")
 try:
     df = pd.read_excel('excel-data/test-2-farmer-development/raw/test_2_farmer_development_raw.xlsx')
     print(f"✓ Data loaded successfully: {len(df)} rows, {len(df.columns)} columns")
-    print(f"✓ Columns: {', '.join(df.columns)}")
-
-# Clean column names - remove extra spaces
+    
+    # Clean column names - remove extra spaces and standardize
     df.columns = df.columns.str.strip()
-    print(f"✓ Cleaned column names")
-
+    print(f"✓ Original columns: {', '.join(df.columns)}")
+    
+    # Create column mapping for flexibility (handles variations in column names)
+    column_mapping = {}
+    for col in df.columns:
+        clean_col = col.strip().lower().replace(':', '').replace(' ', '_')
+        column_mapping[col] = clean_col
+    
+    # Rename columns to standardized format
+    df.rename(columns={
+        col: col.strip() for col in df.columns
+    }, inplace=True)
+    
+    print(f"✓ Columns cleaned and ready for analysis")
+    
 except Exception as e:
     print(f"✗ Error loading data: {e}")
+    print(f"Please check:")
+    print(f"  1. File exists at: excel-data/test-2-farmer-development/raw/test_2_farmer_development_raw.xlsx")
+    print(f"  2. File is a valid Excel file (.xlsx)")
+    print(f"  3. File is not corrupted")
     exit(1)
 
 # ============================================================================
-# STEP 2: DATA CLEANING
+# STEP 2: COLUMN NAME DETECTION (Flexible)
 # ============================================================================
-print("\n[STEP 2] Data Cleaning...")
+print("\n[STEP 2] Detecting column names...")
 
-# 2.1 Check for missing values
-print("\n2.1 Missing Values Check:")
+def find_column(df, possible_names):
+    """Find column by checking multiple possible names"""
+    for name in possible_names:
+        if name in df.columns:
+            return name
+    # If exact match not found, try case-insensitive partial match
+    for col in df.columns:
+        col_lower = col.lower().strip()
+        for name in possible_names:
+            if name.lower().strip() in col_lower or col_lower in name.lower().strip():
+                return col
+    return None
+
+# Define possible column name variations
+farmer_code_col = find_column(df, ['Farmer: Farmer Code', 'Farmer Code', 'farmer_code', 'FarmerCode'])
+farmer_name_col = find_column(df, ['Farmer: Full Name', 'Full Name', 'Farmer Name', 'Name'])
+visit_col = find_column(df, ['Visit Number', 'Visit', 'VisitNumber'])
+village_col = find_column(df, ['Farmer: Village', 'Village'])
+gender_col = find_column(df, ['Farmer: Gender', 'Gender'])
+education_col = find_column(df, ['Farmer: Educational Level', 'Educational Level', 'Education'])
+farm_area_col = find_column(df, ['Farm: Total Farm Area HA', 'Total Farm Area HA', 'Farm Area', 'Farm_Area_Ha'])
+production_col = find_column(df, ['Farm: Production - last baseline KG', 'Production', 'Production KG'])
+price_col = find_column(df, ['Farm_BL: Average Farm gate cocoa price', 'Cocoa Price', 'Price'])
+result_col = find_column(df, ['Result'])
+competence_col = find_column(df, ['Competence'])
+
+# Print detected columns
+print(f"✓ Detected columns:")
+print(f"  - Farmer Code: {farmer_code_col}")
+print(f"  - Visit Number: {visit_col}")
+print(f"  - Gender: {gender_col}")
+print(f"  - Farm Area: {farm_area_col}")
+print(f"  - Result: {result_col}")
+print(f"  - Competence: {competence_col}")
+
+# Check for essential columns
+essential_cols = {
+    'Farmer Code': farmer_code_col,
+    'Visit Number': visit_col,
+    'Result': result_col,
+    'Competence': competence_col
+}
+
+missing_essential = [name for name, col in essential_cols.items() if col is None]
+if missing_essential:
+    print(f"\n⚠ WARNING: Missing essential columns: {', '.join(missing_essential)}")
+    print(f"Available columns: {', '.join(df.columns)}")
+    print(f"Analysis will continue with available data...")
+
+# ============================================================================
+# STEP 3: DATA CLEANING
+# ============================================================================
+print("\n[STEP 3] Data Cleaning...")
+
+# 3.1 Check for missing values
+print("\n3.1 Missing Values Check:")
 missing = df.isnull().sum()
 missing_pct = (missing / len(df) * 100).round(2)
 missing_df = pd.DataFrame({
@@ -61,48 +131,52 @@ if len(missing_df) > 0:
 else:
     print("✓ No missing values found")
 
-# 2.2 Remove duplicates
-print("\n2.2 Duplicate Check:")
+# 3.2 Remove duplicates
+print("\n3.2 Duplicate Check:")
 duplicates = df.duplicated().sum()
 print(f"Found {duplicates} duplicate rows")
 if duplicates > 0:
     df.drop_duplicates(inplace=True)
     print(f"✓ Removed {duplicates} duplicates")
 
-# 2.3 Data type conversions
-print("\n2.3 Data Type Validation:")
-# Ensure numeric columns are numeric
-numeric_cols = ['Farm: Total Farm Area HA', 'Farm: Production - last baseline KG', 'Farm_BL: Average Farm gate cocoa price']
-for col in numeric_cols:
-    if col in df.columns:
-        df[col] = pd.to_numeric(df[col], errors='coerce')
-        print(f"✓ Converted {col} to numeric")
+# 3.3 Data type conversions
+print("\n3.3 Data Type Validation:")
+if farm_area_col:
+    df[farm_area_col] = pd.to_numeric(df[farm_area_col], errors='coerce')
+    print(f"✓ Converted {farm_area_col} to numeric")
+if production_col:
+    df[production_col] = pd.to_numeric(df[production_col], errors='coerce')
+    print(f"✓ Converted {production_col} to numeric")
+if price_col:
+    df[price_col] = pd.to_numeric(df[price_col], errors='coerce')
+    print(f"✓ Converted {price_col} to numeric")
 
 # Save cleaned data
 df.to_csv('results/cleaned_data.csv', index=False)
 print("\n✓ Cleaned data saved to 'results/cleaned_data.csv'")
 
 # ============================================================================
-# STEP 3: DATA STRUCTURE ANALYSIS
+# STEP 4: DATA STRUCTURE ANALYSIS
 # ============================================================================
-print("\n[STEP 3] Data Structure Analysis...")
+print("\n[STEP 4] Data Structure Analysis...")
 
-# Check unique farmers and visits
-unique_farmers = df['Farmer: Farmer Code'].nunique()
-unique_visits = df['Visit Number'].nunique()
-print(f"\n✓ Total unique farmers: {unique_farmers}")
-print(f"✓ Visit numbers found: {sorted(df['Visit Number'].unique())}")
-
-# Check visit distribution
-visit_counts = df.groupby('Visit Number')['Farmer: Farmer Code'].nunique()
-print(f"\n✓ Farmer count by visit:")
-for visit, count in visit_counts.items():
-    print(f"  - Visit {visit}: {count} farmers")
+if farmer_code_col and visit_col:
+    unique_farmers = df[farmer_code_col].nunique()
+    unique_visits = df[visit_col].nunique()
+    print(f"\n✓ Total unique farmers: {unique_farmers}")
+    print(f"✓ Visit numbers found: {sorted(df[visit_col].unique())}")
+    
+    visit_counts = df.groupby(visit_col)[farmer_code_col].nunique()
+    print(f"\n✓ Farmer count by visit:")
+    for visit, count in visit_counts.items():
+        print(f"  - Visit {visit}: {count} farmers")
+else:
+    print("⚠ Cannot analyze data structure - missing farmer code or visit number")
 
 # ============================================================================
-# STEP 4: CATEGORIZE RESULT AND COMPETENCE
+# STEP 5: CATEGORIZE RESULT AND COMPETENCE
 # ============================================================================
-print("\n[STEP 4] Categorizing Result and Competence...")
+print("\n[STEP 5] Categorizing Result and Competence...")
 
 def categorize_score(value):
     """Categorize Result/Competence as Good/Medium/Bad"""
@@ -127,18 +201,26 @@ def categorize_score(value):
     return 'Medium'
 
 # Apply categorization
-df['Result_Category'] = df['Result'].apply(categorize_score)
-df['Competence_Category'] = df['Competence'].apply(categorize_score)
+if result_col:
+    df['Result_Category'] = df[result_col].apply(categorize_score)
+    print("✓ Result categorization:")
+    print(df['Result_Category'].value_counts())
+else:
+    print("⚠ Result column not found - skipping Result categorization")
+    df['Result_Category'] = 'Unknown'
 
-print("✓ Result categorization:")
-print(df['Result_Category'].value_counts())
-print("\n✓ Competence categorization:")
-print(df['Competence_Category'].value_counts())
+if competence_col:
+    df['Competence_Category'] = df[competence_col].apply(categorize_score)
+    print("\n✓ Competence categorization:")
+    print(df['Competence_Category'].value_counts())
+else:
+    print("⚠ Competence column not found - skipping Competence categorization")
+    df['Competence_Category'] = 'Unknown'
 
 # ============================================================================
-# STEP 5: FARM SIZE SEGMENTATION
+# STEP 6: FARM SIZE SEGMENTATION
 # ============================================================================
-print("\n[STEP 5] Farm Size Segmentation...")
+print("\n[STEP 6] Farm Size Segmentation...")
 
 def categorize_farm_size(size):
     """Categorize farm size into <2ha, 2-4ha, ≥4ha"""
@@ -151,176 +233,212 @@ def categorize_farm_size(size):
     else:
         return '≥4ha'
 
-df['Farm_Size_Category'] = df['Farm: Total Farm Area HA'].apply(categorize_farm_size)
-
-print("✓ Farm size distribution:")
-print(df['Farm_Size_Category'].value_counts())
-
-# ============================================================================
-# STEP 6: PROGRESS TRACKING (VISIT 1 VS VISIT 2)
-# ============================================================================
-print("\n[STEP 6] Progress Tracking Analysis...")
-
-# Create numeric scores for comparison
-score_map = {'Good': 3, 'Medium': 2, 'Bad': 1, 'Unknown': 0}
-df['Result_Score'] = df['Result_Category'].map(score_map)
-df['Competence_Score'] = df['Competence_Category'].map(score_map)
-
-# Get farmers who have both visits
-farmers_with_multiple_visits = df[df['Visit Number'].isin([1, 2])].groupby('Farmer: Farmer Code').filter(lambda x: len(x['Visit Number'].unique()) > 1)
-
-if len(farmers_with_multiple_visits) > 0:
-    print(f"✓ Found {farmers_with_multiple_visits['Farmer: Farmer Code'].nunique()} farmers with multiple visits")
-    
-    # Create pivot for comparison
-    progress_data = []
-    
-    for farmer_code in farmers_with_multiple_visits['Farmer: Farmer Code'].unique():
-        farmer_data = df[df['Farmer: Farmer Code'] == farmer_code].sort_values('Visit Number')
-        
-        if len(farmer_data) >= 2:
-            visit1 = farmer_data[farmer_data['Visit Number'] == 1].iloc[0] if len(farmer_data[farmer_data['Visit Number'] == 1]) > 0 else None
-            visit2 = farmer_data[farmer_data['Visit Number'] == 2].iloc[0] if len(farmer_data[farmer_data['Visit Number'] == 2]) > 0 else None
-            
-            if visit1 is not None and visit2 is not None:
-                progress_data.append({
-                    'Farmer_Code': farmer_code,
-                    'Result_V1': visit1['Result_Category'],
-                    'Result_V2': visit2['Result_Category'],
-                    'Result_Score_V1': visit1['Result_Score'],
-                    'Result_Score_V2': visit2['Result_Score'],
-                    'Competence_V1': visit1['Competence_Category'],
-                    'Competence_V2': visit2['Competence_Category'],
-                    'Competence_Score_V1': visit1['Competence_Score'],
-                    'Competence_Score_V2': visit2['Competence_Score'],
-                    'Gender': visit1['Farmer: Gender'],
-                    'Farm_Size': visit1['Farm: Total Farm Area HA'],
-                    'Farm_Size_Category': visit1['Farm_Size_Category']
-                })
-    
-    if progress_data:
-        progress_df = pd.DataFrame(progress_data)
-        
-        # Calculate progress
-        progress_df['Result_Progress'] = progress_df['Result_Score_V2'] - progress_df['Result_Score_V1']
-        progress_df['Competence_Progress'] = progress_df['Competence_Score_V2'] - progress_df['Competence_Score_V1']
-        
-        # Categorize progress
-        def categorize_progress(score):
-            if score > 0:
-                return 'Improved'
-            elif score == 0:
-                return 'Stable'
-            else:
-                return 'Declined'
-        
-        progress_df['Result_Progress_Category'] = progress_df['Result_Progress'].apply(categorize_progress)
-        progress_df['Competence_Progress_Category'] = progress_df['Competence_Progress'].apply(categorize_progress)
-        
-        # Calculate percentages
-        result_progress_pct = progress_df['Result_Progress_Category'].value_counts(normalize=True) * 100
-        competence_progress_pct = progress_df['Competence_Progress_Category'].value_counts(normalize=True) * 100
-        
-        print("\n✓ RESULT Progress (Visit 1 → Visit 2):")
-        for category in ['Improved', 'Stable', 'Declined']:
-            pct = result_progress_pct.get(category, 0)
-            count = (progress_df['Result_Progress_Category'] == category).sum()
-            print(f"  - {category}: {count} farmers ({pct:.1f}%)")
-        
-        print("\n✓ COMPETENCE Progress (Visit 1 → Visit 2):")
-        for category in ['Improved', 'Stable', 'Declined']:
-            pct = competence_progress_pct.get(category, 0)
-            count = (progress_df['Competence_Progress_Category'] == category).sum()
-            print(f"  - {category}: {count} farmers ({pct:.1f}%)")
-        
-        # Save progress data
-        progress_df.to_csv('results/progress_tracking.csv', index=False)
-        print("\n✓ Progress tracking data saved")
-    else:
-        print("⚠ No farmers with complete Visit 1 and Visit 2 data")
-        progress_df = None
+if farm_area_col:
+    df['Farm_Size_Category'] = df[farm_area_col].apply(categorize_farm_size)
+    print("✓ Farm size distribution:")
+    print(df['Farm_Size_Category'].value_counts())
 else:
-    print("⚠ No farmers with multiple visits found")
-    progress_df = None
+    print("⚠ Farm area column not found - skipping farm size segmentation")
+    df['Farm_Size_Category'] = 'Unknown'
 
 # ============================================================================
-# STEP 7: SEGMENTATION ANALYSIS
+# STEP 7: PROGRESS TRACKING (VISIT 1 VS VISIT 2)
 # ============================================================================
-print("\n[STEP 7] Segmentation Analysis...")
+print("\n[STEP 7] Progress Tracking Analysis...")
 
-# 7.1 Gender Analysis
-print("\n7.1 Analysis by Gender:")
-gender_result = pd.crosstab(df['Farmer: Gender'], df['Result_Category'], normalize='index') * 100
-print("Result by Gender (%):")
-print(gender_result.round(2))
+progress_df = None
 
-gender_competence = pd.crosstab(df['Farmer: Gender'], df['Competence_Category'], normalize='index') * 100
-print("\nCompetence by Gender (%):")
-print(gender_competence.round(2))
-
-# 7.2 Farm Size Analysis
-print("\n7.2 Analysis by Farm Size:")
-size_result = pd.crosstab(df['Farm_Size_Category'], df['Result_Category'], normalize='index') * 100
-print("Result by Farm Size (%):")
-print(size_result.round(2))
-
-size_competence = pd.crosstab(df['Farm_Size_Category'], df['Competence_Category'], normalize='index') * 100
-print("\nCompetence by Farm Size (%):")
-print(size_competence.round(2))
+if farmer_code_col and visit_col and result_col and competence_col:
+    # Create numeric scores for comparison
+    score_map = {'Good': 3, 'Medium': 2, 'Bad': 1, 'Unknown': 0}
+    df['Result_Score'] = df['Result_Category'].map(score_map)
+    df['Competence_Score'] = df['Competence_Category'].map(score_map)
+    
+    # Get farmers who have both visits
+    farmers_with_multiple_visits = df[df[visit_col].isin([1, 2])].groupby(farmer_code_col).filter(
+        lambda x: len(x[visit_col].unique()) > 1
+    )
+    
+    if len(farmers_with_multiple_visits) > 0:
+        print(f"✓ Found {farmers_with_multiple_visits[farmer_code_col].nunique()} farmers with multiple visits")
+        
+        # Create pivot for comparison
+        progress_data = []
+        
+        for farmer_code in farmers_with_multiple_visits[farmer_code_col].unique():
+            farmer_data = df[df[farmer_code_col] == farmer_code].sort_values(visit_col)
+            
+            if len(farmer_data) >= 2:
+                visit1 = farmer_data[farmer_data[visit_col] == 1].iloc[0] if len(farmer_data[farmer_data[visit_col] == 1]) > 0 else None
+                visit2 = farmer_data[farmer_data[visit_col] == 2].iloc[0] if len(farmer_data[farmer_data[visit_col] == 2]) > 0 else None
+                
+                if visit1 is not None and visit2 is not None:
+                    progress_entry = {
+                        'Farmer_Code': farmer_code,
+                        'Result_V1': visit1['Result_Category'],
+                        'Result_V2': visit2['Result_Category'],
+                        'Result_Score_V1': visit1['Result_Score'],
+                        'Result_Score_V2': visit2['Result_Score'],
+                        'Competence_V1': visit1['Competence_Category'],
+                        'Competence_V2': visit2['Competence_Category'],
+                        'Competence_Score_V1': visit1['Competence_Score'],
+                        'Competence_Score_V2': visit2['Competence_Score']
+                    }
+                    
+                    if gender_col and gender_col in visit1.index:
+                        progress_entry['Gender'] = visit1[gender_col]
+                    if farm_area_col and farm_area_col in visit1.index:
+                        progress_entry['Farm_Size'] = visit1[farm_area_col]
+                        progress_entry['Farm_Size_Category'] = visit1['Farm_Size_Category']
+                    
+                    progress_data.append(progress_entry)
+        
+        if progress_data:
+            progress_df = pd.DataFrame(progress_data)
+            
+            # Calculate progress
+            progress_df['Result_Progress'] = progress_df['Result_Score_V2'] - progress_df['Result_Score_V1']
+            progress_df['Competence_Progress'] = progress_df['Competence_Score_V2'] - progress_df['Competence_Score_V1']
+            
+            # Categorize progress
+            def categorize_progress(score):
+                if score > 0:
+                    return 'Improved'
+                elif score == 0:
+                    return 'Stable'
+                else:
+                    return 'Declined'
+            
+            progress_df['Result_Progress_Category'] = progress_df['Result_Progress'].apply(categorize_progress)
+            progress_df['Competence_Progress_Category'] = progress_df['Competence_Progress'].apply(categorize_progress)
+            
+            # Calculate percentages
+            result_progress_pct = progress_df['Result_Progress_Category'].value_counts(normalize=True) * 100
+            competence_progress_pct = progress_df['Competence_Progress_Category'].value_counts(normalize=True) * 100
+            
+            print("\n✓ RESULT Progress (Visit 1 → Visit 2):")
+            for category in ['Improved', 'Stable', 'Declined']:
+                pct = result_progress_pct.get(category, 0)
+                count = (progress_df['Result_Progress_Category'] == category).sum()
+                print(f"  - {category}: {count} farmers ({pct:.1f}%)")
+            
+            print("\n✓ COMPETENCE Progress (Visit 1 → Visit 2):")
+            for category in ['Improved', 'Stable', 'Declined']:
+                pct = competence_progress_pct.get(category, 0)
+                count = (progress_df['Competence_Progress_Category'] == category).sum()
+                print(f"  - {category}: {count} farmers ({pct:.1f}%)")
+            
+            # Save progress data
+            progress_df.to_csv('results/progress_tracking.csv', index=False)
+            print("\n✓ Progress tracking data saved")
+        else:
+            print("⚠ No farmers with complete Visit 1 and Visit 2 data")
+    else:
+        print("⚠ No farmers with multiple visits found")
+else:
+    print("⚠ Missing required columns for progress tracking")
 
 # ============================================================================
-# STEP 8: PRODUCTION/YIELD ANALYSIS
+# STEP 8: SEGMENTATION ANALYSIS
 # ============================================================================
-print("\n[STEP 8] Production/Yield Analysis...")
+print("\n[STEP 8] Segmentation Analysis...")
 
-# Calculate yield (kg/ha)
-df['Yield_kg_per_ha'] = df['Farm: Production - last baseline KG'] / df['Farm: Total Farm Area HA']
+# 8.1 Gender Analysis
+if gender_col:
+    print("\n8.1 Analysis by Gender:")
+    try:
+        gender_result = pd.crosstab(df[gender_col], df['Result_Category'], normalize='index') * 100
+        print("Result by Gender (%):")
+        print(gender_result.round(2))
+        
+        gender_competence = pd.crosstab(df[gender_col], df['Competence_Category'], normalize='index') * 100
+        print("\nCompetence by Gender (%):")
+        print(gender_competence.round(2))
+    except Exception as e:
+        print(f"⚠ Could not perform gender analysis: {e}")
+else:
+    print("\n8.1 Gender column not found - skipping gender analysis")
+    gender_result = None
+    gender_competence = None
 
-print("\n8.1 Yield Statistics:")
-print(f"Average yield: {df['Yield_kg_per_ha'].mean():.2f} kg/ha")
-print(f"Median yield: {df['Yield_kg_per_ha'].median():.2f} kg/ha")
-print(f"Min yield: {df['Yield_kg_per_ha'].min():.2f} kg/ha")
-print(f"Max yield: {df['Yield_kg_per_ha'].max():.2f} kg/ha")
-
-# Yield by segments
-print("\n8.2 Yield by Gender:")
-yield_gender = df.groupby('Farmer: Gender')['Yield_kg_per_ha'].agg(['mean', 'median', 'count'])
-print(yield_gender.round(2))
-
-print("\n8.3 Yield by Farm Size:")
-yield_size = df.groupby('Farm_Size_Category')['Yield_kg_per_ha'].agg(['mean', 'median', 'count'])
-print(yield_size.round(2))
-
-# ============================================================================
-# STEP 9: LIVING INCOME CALCULATION
-# ============================================================================
-print("\n[STEP 9] Living Income Analysis...")
-
-# Constants (based on requirements)
-BASE_PRICE_CFA = 1000  # CFA per kg
-PREMIUM_CFA = 40       # CFA per kg
-TOTAL_PRICE_CFA = BASE_PRICE_CFA + PREMIUM_CFA
-COCOA_REVENUE_PERCENTAGE = 0.72  # 72% of total revenue
-
-# Calculate cocoa revenue
-df['Cocoa_Revenue_CFA'] = df['Farm: Production - last baseline KG'] * TOTAL_PRICE_CFA
-
-# Calculate total income (cocoa is 72% of total)
-df['Total_Income_CFA'] = df['Cocoa_Revenue_CFA'] / COCOA_REVENUE_PERCENTAGE
-
-print(f"\n✓ Average cocoa production: {df['Farm: Production - last baseline KG'].mean():.2f} kg")
-print(f"✓ Average cocoa revenue: {df['Cocoa_Revenue_CFA'].mean():,.0f} CFA")
-print(f"✓ Average total income: {df['Total_Income_CFA'].mean():,.0f} CFA")
-
-# Note: Living Income Benchmark would need to be added based on Anker & Anker or LICOP data
-print("\n⚠ Note: Living Income Gap calculation requires benchmark data (Anker & Anker/LICOP)")
+# 8.2 Farm Size Analysis
+if farm_area_col:
+    print("\n8.2 Analysis by Farm Size:")
+    try:
+        size_result = pd.crosstab(df['Farm_Size_Category'], df['Result_Category'], normalize='index') * 100
+        print("Result by Farm Size (%):")
+        print(size_result.round(2))
+        
+        size_competence = pd.crosstab(df['Farm_Size_Category'], df['Competence_Category'], normalize='index') * 100
+        print("\nCompetence by Farm Size (%):")
+        print(size_competence.round(2))
+    except Exception as e:
+        print(f"⚠ Could not perform farm size analysis: {e}")
+else:
+    print("\n8.2 Farm area column not found - skipping farm size analysis")
+    size_result = None
+    size_competence = None
 
 # ============================================================================
-# STEP 10: DATA VISUALIZATION
+# STEP 9: PRODUCTION/YIELD ANALYSIS
 # ============================================================================
-print("\n[STEP 10] Creating Visualizations...")
+print("\n[STEP 9] Production/Yield Analysis...")
 
-# 10.1 Result Distribution
+if production_col and farm_area_col:
+    # Calculate yield (kg/ha)
+    df['Yield_kg_per_ha'] = df[production_col] / df[farm_area_col]
+    
+    print("\n9.1 Yield Statistics:")
+    print(f"Average yield: {df['Yield_kg_per_ha'].mean():.2f} kg/ha")
+    print(f"Median yield: {df['Yield_kg_per_ha'].median():.2f} kg/ha")
+    print(f"Min yield: {df['Yield_kg_per_ha'].min():.2f} kg/ha")
+    print(f"Max yield: {df['Yield_kg_per_ha'].max():.2f} kg/ha")
+    
+    # Yield by segments
+    if gender_col:
+        print("\n9.2 Yield by Gender:")
+        yield_gender = df.groupby(gender_col)['Yield_kg_per_ha'].agg(['mean', 'median', 'count'])
+        print(yield_gender.round(2))
+    
+    print("\n9.3 Yield by Farm Size:")
+    yield_size = df.groupby('Farm_Size_Category')['Yield_kg_per_ha'].agg(['mean', 'median', 'count'])
+    print(yield_size.round(2))
+else:
+    print("⚠ Production or farm area column not found - skipping yield analysis")
+
+# ============================================================================
+# STEP 10: LIVING INCOME CALCULATION
+# ============================================================================
+print("\n[STEP 10] Living Income Analysis...")
+
+if production_col:
+    # Constants (based on requirements)
+    BASE_PRICE_CFA = 1000  # CFA per kg
+    PREMIUM_CFA = 40       # CFA per kg
+    TOTAL_PRICE_CFA = BASE_PRICE_CFA + PREMIUM_CFA
+    COCOA_REVENUE_PERCENTAGE = 0.72  # 72% of total revenue
+    
+    # Calculate cocoa revenue
+    df['Cocoa_Revenue_CFA'] = df[production_col] * TOTAL_PRICE_CFA
+    
+    # Calculate total income (cocoa is 72% of total)
+    df['Total_Income_CFA'] = df['Cocoa_Revenue_CFA'] / COCOA_REVENUE_PERCENTAGE
+    
+    print(f"\n✓ Average cocoa production: {df[production_col].mean():.2f} kg")
+    print(f"✓ Average cocoa revenue: {df['Cocoa_Revenue_CFA'].mean():,.0f} CFA")
+    print(f"✓ Average total income: {df['Total_Income_CFA'].mean():,.0f} CFA")
+    
+    # Note: Living Income Benchmark would need to be added
+    print("\n⚠ Note: Living Income Gap calculation requires benchmark data (Anker & Anker/LICOP)")
+else:
+    print("⚠ Production column not found - skipping living income analysis")
+
+# ============================================================================
+# STEP 11: DATA VISUALIZATION
+# ============================================================================
+print("\n[STEP 11] Creating Visualizations...")
+
+# 11.1 Result Distribution
 plt.figure(figsize=(10, 6))
 result_counts = df['Result_Category'].value_counts()
 colors = {'Good': '#2ecc71', 'Medium': '#f39c12', 'Bad': '#e74c3c', 'Unknown': '#95a5a6'}
@@ -331,7 +449,7 @@ plt.savefig('results/01_result_distribution_pie.png', dpi=300, bbox_inches='tigh
 plt.close()
 print("✓ Created: 01_result_distribution_pie.png")
 
-# 10.2 Competence Distribution
+# 11.2 Competence Distribution
 plt.figure(figsize=(10, 6))
 comp_counts = df['Competence_Category'].value_counts()
 comp_colors = [colors.get(x, '#95a5a6') for x in comp_counts.index]
@@ -341,12 +459,13 @@ plt.savefig('results/02_competence_distribution_pie.png', dpi=300, bbox_inches='
 plt.close()
 print("✓ Created: 02_competence_distribution_pie.png")
 
-# 10.3 Progress Tracking (if available)
+# 11.3 Progress Tracking (if available)
 if progress_df is not None and len(progress_df) > 0:
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
     
     # Result progress
     result_prog = progress_df['Result_Progress_Category'].value_counts()
+    result_prog = result_prog.reindex(['Improved', 'Stable', 'Declined'], fill_value=0)
     ax1.bar(result_prog.index, result_prog.values, color=['#2ecc71', '#95a5a6', '#e74c3c'])
     ax1.set_title('Result Progress (Visit 1 → Visit 2)', fontsize=14, fontweight='bold')
     ax1.set_ylabel('Number of Farmers')
@@ -354,6 +473,7 @@ if progress_df is not None and len(progress_df) > 0:
     
     # Competence progress
     comp_prog = progress_df['Competence_Progress_Category'].value_counts()
+    comp_prog = comp_prog.reindex(['Improved', 'Stable', 'Declined'], fill_value=0)
     ax2.bar(comp_prog.index, comp_prog.values, color=['#2ecc71', '#95a5a6', '#e74c3c'])
     ax2.set_title('Competence Progress (Visit 1 → Visit 2)', fontsize=14, fontweight='bold')
     ax2.set_ylabel('Number of Farmers')
@@ -364,93 +484,112 @@ if progress_df is not None and len(progress_df) > 0:
     plt.close()
     print("✓ Created: 03_progress_tracking.png")
 
-# 10.4 Gender Analysis
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-gender_result.plot(kind='bar', ax=ax1, color=['#e74c3c', '#2ecc71', '#f39c12', '#95a5a6'])
-ax1.set_title('Result by Gender', fontsize=14, fontweight='bold')
-ax1.set_xlabel('Gender')
-ax1.set_ylabel('Percentage (%)')
-ax1.legend(title='Result Category')
-ax1.set_xticklabels(ax1.get_xticklabels(), rotation=45)
-ax1.grid(axis='y', alpha=0.3)
+# 11.4 Gender Analysis (if available)
+if gender_col and gender_result is not None and gender_competence is not None:
+    try:
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+        gender_result.plot(kind='bar', ax=ax1, color=['#e74c3c', '#2ecc71', '#f39c12', '#95a5a6'])
+        ax1.set_title('Result by Gender', fontsize=14, fontweight='bold')
+        ax1.set_xlabel('Gender')
+        ax1.set_ylabel('Percentage (%)')
+        ax1.legend(title='Result Category', bbox_to_anchor=(1.05, 1))
+        ax1.set_xticklabels(ax1.get_xticklabels(), rotation=45)
+        ax1.grid(axis='y', alpha=0.3)
+        
+        gender_competence.plot(kind='bar', ax=ax2, color=['#e74c3c', '#2ecc71', '#f39c12', '#95a5a6'])
+        ax2.set_title('Competence by Gender', fontsize=14, fontweight='bold')
+        ax2.set_xlabel('Gender')
+        ax2.set_ylabel('Percentage (%)')
+        ax2.legend(title='Competence Category', bbox_to_anchor=(1.05, 1))
+        ax2.set_xticklabels(ax2.get_xticklabels(), rotation=45)
+        ax2.grid(axis='y', alpha=0.3)
+        
+        plt.tight_layout()
+        plt.savefig('results/04_gender_analysis.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        print("✓ Created: 04_gender_analysis.png")
+    except Exception as e:
+        print(f"⚠ Could not create gender analysis chart: {e}")
 
-gender_competence.plot(kind='bar', ax=ax2, color=['#e74c3c', '#2ecc71', '#f39c12', '#95a5a6'])
-ax2.set_title('Competence by Gender', fontsize=14, fontweight='bold')
-ax2.set_xlabel('Gender')
-ax2.set_ylabel('Percentage (%)')
-ax2.legend(title='Competence Category')
-ax2.set_xticklabels(ax2.get_xticklabels(), rotation=45)
-ax2.grid(axis='y', alpha=0.3)
+# 11.5 Farm Size Analysis (if available)
+if farm_area_col and size_result is not None and size_competence is not None:
+    try:
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+        size_result.plot(kind='bar', ax=ax1, color=['#e74c3c', '#2ecc71', '#f39c12', '#95a5a6'])
+        ax1.set_title('Result by Farm Size', fontsize=14, fontweight='bold')
+        ax1.set_xlabel('Farm Size')
+        ax1.set_ylabel('Percentage (%)')
+        ax1.legend(title='Result Category', bbox_to_anchor=(1.05, 1))
+        ax1.set_xticklabels(ax1.get_xticklabels(), rotation=45)
+        ax1.grid(axis='y', alpha=0.3)
+        
+        size_competence.plot(kind='bar', ax=ax2, color=['#e74c3c', '#2ecc71', '#f39c12', '#95a5a6'])
+        ax2.set_title('Competence by Farm Size', fontsize=14, fontweight='bold')
+        ax2.set_xlabel('Farm Size')
+        ax2.set_ylabel('Percentage (%)')
+        ax2.legend(title='Competence Category', bbox_to_anchor=(1.05, 1))
+        ax2.set_xticklabels(ax2.get_xticklabels(), rotation=45)
+        ax2.grid(axis='y', alpha=0.3)
+        
+        plt.tight_layout()
+        plt.savefig('results/05_farm_size_analysis.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        print("✓ Created: 05_farm_size_analysis.png")
+    except Exception as e:
+        print(f"⚠ Could not create farm size analysis chart: {e}")
 
-plt.tight_layout()
-plt.savefig('results/04_gender_analysis.png', dpi=300, bbox_inches='tight')
-plt.close()
-print("✓ Created: 04_gender_analysis.png")
+# 11.6 Yield Analysis (if available)
+if production_col and farm_area_col and 'Yield_kg_per_ha' in df.columns:
+    try:
+        plt.figure(figsize=(12, 6))
+        df.boxplot(column='Yield_kg_per_ha', by='Farm_Size_Category', ax=plt.gca())
+        plt.title('Yield Distribution by Farm Size', fontsize=16, fontweight='bold')
+        plt.suptitle('')
+        plt.xlabel('Farm Size Category')
+        plt.ylabel('Yield (kg/ha)')
+        plt.savefig('results/06_yield_by_farm_size.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        print("✓ Created: 06_yield_by_farm_size.png")
+    except Exception as e:
+        print(f"⚠ Could not create yield chart: {e}")
 
-# 10.5 Farm Size Analysis
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-size_result.plot(kind='bar', ax=ax1, color=['#e74c3c', '#2ecc71', '#f39c12', '#95a5a6'])
-ax1.set_title('Result by Farm Size', fontsize=14, fontweight='bold')
-ax1.set_xlabel('Farm Size')
-ax1.set_ylabel('Percentage (%)')
-ax1.legend(title='Result Category')
-ax1.set_xticklabels(ax1.get_xticklabels(), rotation=45)
-ax1.grid(axis='y', alpha=0.3)
+# 11.7 Income Distribution (if available)
+if 'Total_Income_CFA' in df.columns:
+    try:
+        plt.figure(figsize=(12, 6))
+        plt.hist(df['Total_Income_CFA'].dropna(), bins=30, color='#3498db', edgecolor='black', alpha=0.7)
+        plt.axvline(df['Total_Income_CFA'].mean(), color='red', linestyle='--', linewidth=2, 
+                   label=f"Mean: {df['Total_Income_CFA'].mean():,.0f} CFA")
+        plt.xlabel('Total Income (CFA)', fontsize=12)
+        plt.ylabel('Number of Farmers', fontsize=12)
+        plt.title('Distribution of Total Income', fontsize=16, fontweight='bold')
+        plt.legend()
+        plt.grid(axis='y', alpha=0.3)
+        plt.savefig('results/07_income_distribution.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        print("✓ Created: 07_income_distribution.png")
+    except Exception as e:
+        print(f"⚠ Could not create income distribution chart: {e}")
 
-size_competence.plot(kind='bar', ax=ax2, color=['#e74c3c', '#2ecc71', '#f39c12', '#95a5a6'])
-ax2.set_title('Competence by Farm Size', fontsize=14, fontweight='bold')
-ax2.set_xlabel('Farm Size')
-ax2.set_ylabel('Percentage (%)')
-ax2.legend(title='Competence Category')
-ax2.set_xticklabels(ax2.get_xticklabels(), rotation=45)
-ax2.grid(axis='y', alpha=0.3)
-
-plt.tight_layout()
-plt.savefig('results/05_farm_size_analysis.png', dpi=300, bbox_inches='tight')
-plt.close()
-print("✓ Created: 05_farm_size_analysis.png")
-
-# 10.6 Yield Analysis
-plt.figure(figsize=(12, 6))
-df.boxplot(column='Yield_kg_per_ha', by='Farm_Size_Category', ax=plt.gca())
-plt.title('Yield Distribution by Farm Size', fontsize=16, fontweight='bold')
-plt.suptitle('')
-plt.xlabel('Farm Size Category')
-plt.ylabel('Yield (kg/ha)')
-plt.savefig('results/06_yield_by_farm_size.png', dpi=300, bbox_inches='tight')
-plt.close()
-print("✓ Created: 06_yield_by_farm_size.png")
-
-# 10.7 Income Distribution
-plt.figure(figsize=(12, 6))
-plt.hist(df['Total_Income_CFA'].dropna(), bins=30, color='#3498db', edgecolor='black', alpha=0.7)
-plt.axvline(df['Total_Income_CFA'].mean(), color='red', linestyle='--', linewidth=2, 
-           label=f"Mean: {df['Total_Income_CFA'].mean():,.0f} CFA")
-plt.xlabel('Total Income (CFA)', fontsize=12)
-plt.ylabel('Number of Farmers', fontsize=12)
-plt.title('Distribution of Total Income', fontsize=16, fontweight='bold')
-plt.legend()
-plt.grid(axis='y', alpha=0.3)
-plt.savefig('results/07_income_distribution.png', dpi=300, bbox_inches='tight')
-plt.close()
-print("✓ Created: 07_income_distribution.png")
-
-# 10.8 Result vs Competence Correlation
-if len(df[df['Result_Category'] != 'Unknown']) > 0:
-    plt.figure(figsize=(10, 8))
-    correlation_data = pd.crosstab(df['Result_Category'], df['Competence_Category'])
-    sns.heatmap(correlation_data, annot=True, fmt='d', cmap='YlGnBu', square=True, linewidths=1)
-    plt.title('Result vs Competence Correlation', fontsize=16, fontweight='bold')
-    plt.xlabel('Competence Category')
-    plt.ylabel('Result Category')
-    plt.savefig('results/08_result_competence_correlation.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("✓ Created: 08_result_competence_correlation.png")
+# 11.8 Result vs Competence Correlation
+try:
+    if len(df[(df['Result_Category'] != 'Unknown') & (df['Competence_Category'] != 'Unknown')]) > 0:
+        plt.figure(figsize=(10, 8))
+        correlation_data = pd.crosstab(df['Result_Category'], df['Competence_Category'])
+        sns.heatmap(correlation_data, annot=True, fmt='d', cmap='YlGnBu', square=True, linewidths=1)
+        plt.title('Result vs Competence Correlation', fontsize=16, fontweight='bold')
+        plt.xlabel('Competence Category')
+        plt.ylabel('Result Category')
+        plt.savefig('results/08_result_competence_correlation.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        print("✓ Created: 08_result_competence_correlation.png")
+except Exception as e:
+    print(f"⚠ Could not create correlation heatmap: {e}")
 
 # ============================================================================
-# STEP 11: COMPREHENSIVE REPORT
+# STEP 12: COMPREHENSIVE REPORT
 # ============================================================================
-print("\n[STEP 11] Generating Comprehensive Report...")
+print("\n[STEP 12] Generating Comprehensive Report...")
 
 report = f"""
 {'='*80}
@@ -464,9 +603,14 @@ Location: Ivory Coast
 {'='*80}
 
 Total Records Analyzed: {len(df)}
-Unique Farmers: {unique_farmers}
-Visits Tracked: {sorted(df['Visit Number'].unique())}
+"""
 
+if farmer_code_col:
+    report += f"Unique Farmers: {df[farmer_code_col].nunique()}\n"
+if visit_col:
+    report += f"Visits Tracked: {sorted(df[visit_col].unique())}\n"
+
+report += f"""
 Overall Distribution:
 RESULT:
   - Good: {(df['Result_Category'] == 'Good').sum()} ({(df['Result_Category'] == 'Good').sum()/len(df)*100:.1f}%)
@@ -512,37 +656,59 @@ report += f"""
 {'='*80}
 3. SEGMENTATION ANALYSIS
 {'='*80}
+"""
 
-3.1 Gender Analysis:
-{gender_result.to_string()}
+if gender_col and gender_result is not None:
+    report += f"\n3.1 Gender Analysis:\n{gender_result.to_string()}\n"
+else:
+    report += "\n3.1 Gender Analysis: Not available\n"
 
-3.2 Farm Size Analysis:
-{size_result.to_string()}
+if farm_area_col and size_result is not None:
+    report += f"\n3.2 Farm Size Analysis:\n{size_result.to_string()}\n"
+else:
+    report += "\n3.2 Farm Size Analysis: Not available\n"
 
+report += f"""
 {'='*80}
 4. PRODUCTION & YIELD ANALYSIS
 {'='*80}
+"""
 
+if production_col and farm_area_col and 'Yield_kg_per_ha' in df.columns:
+    report += f"""
 Average Yield: {df['Yield_kg_per_ha'].mean():.2f} kg/ha
 Median Yield: {df['Yield_kg_per_ha'].median():.2f} kg/ha
+"""
+    if gender_col:
+        report += f"\nYield by Gender:\n{df.groupby(gender_col)['Yield_kg_per_ha'].agg(['mean', 'median', 'count']).to_string()}\n"
+    
+    report += f"\nYield by Farm Size:\n{df.groupby('Farm_Size_Category')['Yield_kg_per_ha'].agg(['mean', 'median', 'count']).to_string()}\n"
+else:
+    report += "\n⚠ Production/yield data not available\n"
 
-Yield by Gender:
-{yield_gender.to_string()}
-
-Yield by Farm Size:
-{yield_size.to_string()}
-
+report += f"""
 {'='*80}
 5. LIVING INCOME ANALYSIS
 {'='*80}
+"""
 
-Average Production: {df['Farm: Production - last baseline KG'].mean():.2f} kg
+if production_col and 'Cocoa_Revenue_CFA' in df.columns:
+    BASE_PRICE_CFA = 1000
+    PREMIUM_CFA = 40
+    TOTAL_PRICE_CFA = BASE_PRICE_CFA + PREMIUM_CFA
+    
+    report += f"""
+Average Production: {df[production_col].mean():.2f} kg
 Cocoa Price: {TOTAL_PRICE_CFA} CFA/kg (Base: {BASE_PRICE_CFA} + Premium: {PREMIUM_CFA})
 Average Cocoa Revenue: {df['Cocoa_Revenue_CFA'].mean():,.0f} CFA
 Average Total Income: {df['Total_Income_CFA'].mean():,.0f} CFA
 
 ⚠ Note: Living Income Gap requires benchmark data (Anker & Anker/LICOP/KIT)
+"""
+else:
+    report += "\n⚠ Income data not available\n"
 
+report += f"""
 {'='*80}
 6. DATA QUALITY RECOMMENDATIONS
 {'='*80}
@@ -552,7 +718,6 @@ Based on the analysis, here are critical recommendations:
 6.1 DATA COMPLETENESS:
 """
 
-# Add specific recommendations based on missing data
 if len(missing_df) > 0:
     report += "\n  Priority Areas with Missing Data:\n"
     for idx, row in missing_df.head(5).iterrows():
@@ -562,10 +727,9 @@ else:
     report += "\n  ✓ No significant missing data issues found\n"
 
 report += f"""
-
 6.2 DATA QUALITY CHECKS:
-  1. Standardize Result/Competence values (currently: {df['Result'].nunique()} unique Result values)
-  2. Validate farm size entries (range: {df['Farm: Total Farm Area HA'].min():.2f} - {df['Farm: Total Farm Area HA'].max():.2f} ha)
+  1. Standardize Result/Competence values for consistency
+  2. Validate farm size entries (ensure realistic ranges)
   3. Ensure consistent visit numbering across all farmers
   4. Implement data validation rules in collection forms
 
@@ -582,7 +746,6 @@ report += f"""
 7.1 IMMEDIATE ACTIONS:
 """
 
-# Add context-specific recommendations
 if progress_df is not None and len(progress_df) > 0:
     declined_pct = (progress_df['Result_Progress_Category'] == 'Declined').sum() / len(progress_df) * 100
     if declined_pct > 10:
@@ -626,12 +789,17 @@ Preparation Required:
 
 Data Files:
   - results/cleaned_data.csv
-  - results/progress_tracking.csv (if applicable)
+  - results/data_with_categories.csv
+"""
 
-Visualizations:
+if progress_df is not None:
+    report += "  - results/progress_tracking.csv\n"
+
+report += """
+Visualizations (as available):
   - results/01_result_distribution_pie.png
   - results/02_competence_distribution_pie.png
-  - results/03_progress_tracking.png (if applicable)
+  - results/03_progress_tracking.png
   - results/04_gender_analysis.png
   - results/05_farm_size_analysis.png
   - results/06_yield_by_farm_size.png
@@ -660,8 +828,14 @@ print("\n" + "="*80)
 print("ANALYSIS COMPLETE!")
 print("="*80)
 print(f"\n✓ All results saved in 'results/' folder")
-print(f"✓ {len([f for f in os.listdir('results') if f.endswith('.png')])} visualizations created")
-print(f"✓ {len([f for f in os.listdir('results') if f.endswith('.csv')])} data files generated")
+
+# Count generated files
+import glob
+png_files = glob.glob('results/*.png')
+csv_files = glob.glob('results/*.csv')
+print(f"✓ {len(png_files)} visualizations created")
+print(f"✓ {len(csv_files)} data files generated")
 print(f"✓ 1 comprehensive report generated")
+
 print("\nThank you for using the Farmer Development Analysis System!")
 print("="*80)
