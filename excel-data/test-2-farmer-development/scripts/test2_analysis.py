@@ -11,8 +11,9 @@ warnings.filterwarnings('ignore')
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (12, 6)
 
-# Create results directory
-os.makedirs('results', exist_ok=True)
+# Create results and cleaned directories
+os.makedirs('excel-data/test-2-farmer-development/results', exist_ok=True)
+os.makedirs('excel-data/test-2-farmer-development/cleaned', exist_ok=True)
 
 print("=" * 80)
 print("FARMER DEVELOPMENT PLAN ANALYSIS - AUTOMATED REPORT")
@@ -152,8 +153,8 @@ if price_col:
     print(f"✓ Converted {price_col} to numeric")
 
 # Save cleaned data
-df.to_csv('results/cleaned_data.csv', index=False)
-print("\n✓ Cleaned data saved to 'results/cleaned_data.csv'")
+df.to_csv('excel-data/test-2-farmer-development/cleaned/cleaned_data.csv', index=False)
+print("\n✓ Cleaned data saved to 'excel-data/test-2-farmer-development/cleaned/cleaned_data.csv'")
 
 # ============================================================================
 # STEP 4: DATA STRUCTURE ANALYSIS
@@ -329,7 +330,7 @@ if farmer_code_col and visit_col and result_col and competence_col:
                 print(f"  - {category}: {count} farmers ({pct:.1f}%)")
             
             # Save progress data
-            progress_df.to_csv('results/progress_tracking.csv', index=False)
+            progress_df.to_csv('excel-data/test-2-farmer-development/results/progress_tracking.csv', index=False)
             print("\n✓ Progress tracking data saved")
         else:
             print("⚠ No farmers with complete Visit 1 and Visit 2 data")
@@ -445,7 +446,7 @@ colors = {'Good': '#2ecc71', 'Medium': '#f39c12', 'Bad': '#e74c3c', 'Unknown': '
 result_colors = [colors.get(x, '#95a5a6') for x in result_counts.index]
 plt.pie(result_counts, labels=result_counts.index, autopct='%1.1f%%', colors=result_colors, startangle=90)
 plt.title('Distribution of Result Categories', fontsize=16, fontweight='bold')
-plt.savefig('results/01_result_distribution_pie.png', dpi=300, bbox_inches='tight')
+plt.savefig('excel-data/test-2-farmer-development/results/01_result_distribution_pie.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("✓ Created: 01_result_distribution_pie.png")
 
@@ -455,7 +456,7 @@ comp_counts = df['Competence_Category'].value_counts()
 comp_colors = [colors.get(x, '#95a5a6') for x in comp_counts.index]
 plt.pie(comp_counts, labels=comp_counts.index, autopct='%1.1f%%', colors=comp_colors, startangle=90)
 plt.title('Distribution of Competence Categories', fontsize=16, fontweight='bold')
-plt.savefig('results/02_competence_distribution_pie.png', dpi=300, bbox_inches='tight')
+plt.savefig('excel-data/test-2-farmer-development/results/02_competence_distribution_pie.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("✓ Created: 02_competence_distribution_pie.png")
 
@@ -480,7 +481,7 @@ if progress_df is not None and len(progress_df) > 0:
     ax2.grid(axis='y', alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig('results/03_progress_tracking.png', dpi=300, bbox_inches='tight')
+    plt.savefig('excel-data/test-2-farmer-development/results/03_progress_tracking.png', dpi=300, bbox_inches='tight')
     plt.close()
     print("✓ Created: 03_progress_tracking.png")
 
@@ -505,7 +506,7 @@ if gender_col and gender_result is not None and gender_competence is not None:
         ax2.grid(axis='y', alpha=0.3)
         
         plt.tight_layout()
-        plt.savefig('results/04_gender_analysis.png', dpi=300, bbox_inches='tight')
+        plt.savefig('excel-data/test-2-farmer-development/results/04_gender_analysis.png', dpi=300, bbox_inches='tight')
         plt.close()
         print("✓ Created: 04_gender_analysis.png")
     except Exception as e:
@@ -532,7 +533,7 @@ if farm_area_col and size_result is not None and size_competence is not None:
         ax2.grid(axis='y', alpha=0.3)
         
         plt.tight_layout()
-        plt.savefig('results/05_farm_size_analysis.png', dpi=300, bbox_inches='tight')
+        plt.savefig('excel-data/test-2-farmer-development/results/05_farm_size_analysis.png', dpi=300, bbox_inches='tight')
         plt.close()
         print("✓ Created: 05_farm_size_analysis.png")
     except Exception as e:
@@ -547,7 +548,7 @@ if production_col and farm_area_col and 'Yield_kg_per_ha' in df.columns:
         plt.suptitle('')
         plt.xlabel('Farm Size Category')
         plt.ylabel('Yield (kg/ha)')
-        plt.savefig('results/06_yield_by_farm_size.png', dpi=300, bbox_inches='tight')
+        plt.savefig('excel-data/test-2-farmer-development/results/06_yield_by_farm_size.png', dpi=300, bbox_inches='tight')
         plt.close()
         print("✓ Created: 06_yield_by_farm_size.png")
     except Exception as e:
@@ -565,7 +566,7 @@ if 'Total_Income_CFA' in df.columns:
         plt.title('Distribution of Total Income', fontsize=16, fontweight='bold')
         plt.legend()
         plt.grid(axis='y', alpha=0.3)
-        plt.savefig('results/07_income_distribution.png', dpi=300, bbox_inches='tight')
+        plt.savefig('excel-data/test-2-farmer-development/results/07_income_distribution.png', dpi=300, bbox_inches='tight')
         plt.close()
         print("✓ Created: 07_income_distribution.png")
     except Exception as e:
@@ -580,7 +581,7 @@ try:
         plt.title('Result vs Competence Correlation', fontsize=16, fontweight='bold')
         plt.xlabel('Competence Category')
         plt.ylabel('Result Category')
-        plt.savefig('results/08_result_competence_correlation.png', dpi=300, bbox_inches='tight')
+        plt.savefig('excel-data/test-2-farmer-development/results/08_result_competence_correlation.png', dpi=300, bbox_inches='tight')
         plt.close()
         print("✓ Created: 08_result_competence_correlation.png")
 except Exception as e:
@@ -788,23 +789,23 @@ Preparation Required:
 {'='*80}
 
 Data Files:
-  - results/cleaned_data.csv
-  - results/data_with_categories.csv
+  - excel-data/test-2-farmer-development/cleaned/cleaned_data.csv
+  - excel-data/test-2-farmer-development/cleaned/data_with_categories.csv
 """
 
 if progress_df is not None:
-    report += "  - results/progress_tracking.csv\n"
+    report += "  - excel-data/test-2-farmer-development/results/progress_tracking.csv\n"
 
 report += """
 Visualizations (as available):
-  - results/01_result_distribution_pie.png
-  - results/02_competence_distribution_pie.png
-  - results/03_progress_tracking.png
-  - results/04_gender_analysis.png
-  - results/05_farm_size_analysis.png
-  - results/06_yield_by_farm_size.png
-  - results/07_income_distribution.png
-  - results/08_result_competence_correlation.png
+  - excel-data/test-2-farmer-development/results/01_result_distribution_pie.png
+  - excel-data/test-2-farmer-development/results/02_competence_distribution_pie.png
+  - excel-data/test-2-farmer-development/results/03_progress_tracking.png
+  - excel-data/test-2-farmer-development/results/04_gender_analysis.png
+  - excel-data/test-2-farmer-development/results/05_farm_size_analysis.png
+  - excel-data/test-2-farmer-development/results/06_yield_by_farm_size.png
+  - excel-data/test-2-farmer-development/results/07_income_distribution.png
+  - excel-data/test-2-farmer-development/results/08_result_competence_correlation.png
 
 {'='*80}
 END OF REPORT
@@ -812,14 +813,14 @@ END OF REPORT
 """
 
 # Save report
-with open('results/COMPREHENSIVE_REPORT.txt', 'w', encoding='utf-8') as f:
+with open('excel-data/test-2-farmer-development/results/COMPREHENSIVE_REPORT.txt', 'w', encoding='utf-8') as f:
     f.write(report)
 
-print("✓ Comprehensive report saved to 'results/COMPREHENSIVE_REPORT.txt'")
+print("✓ Comprehensive report saved to 'excel-data/test-2-farmer-development/results/COMPREHENSIVE_REPORT.txt'")
 
 # Save enhanced data
-df.to_csv('results/data_with_categories.csv', index=False)
-print("✓ Enhanced data saved to 'results/data_with_categories.csv'")
+df.to_csv('excel-data/test-2-farmer-development/cleaned/data_with_categories.csv', index=False)
+print("✓ Enhanced data saved to 'excel-data/test-2-farmer-development/cleaned/data_with_categories.csv'")
 
 # Print summary to console
 print(report)
@@ -827,14 +828,17 @@ print(report)
 print("\n" + "="*80)
 print("ANALYSIS COMPLETE!")
 print("="*80)
-print(f"\n✓ All results saved in 'results/' folder")
+print(f"\n✓ All results saved in 'excel-data/test-2-farmer-development/results/' folder")
+print(f"✓ All cleaned data saved in 'excel-data/test-2-farmer-development/cleaned/' folder")
 
 # Count generated files
 import glob
-png_files = glob.glob('results/*.png')
-csv_files = glob.glob('results/*.csv')
+png_files = glob.glob('excel-data/test-2-farmer-development/results/*.png')
+csv_files_results = glob.glob('excel-data/test-2-farmer-development/results/*.csv')
+csv_files_cleaned = glob.glob('excel-data/test-2-farmer-development/cleaned/*.csv')
 print(f"✓ {len(png_files)} visualizations created")
-print(f"✓ {len(csv_files)} data files generated")
+print(f"✓ {len(csv_files_results)} result data files generated")
+print(f"✓ {len(csv_files_cleaned)} cleaned data files generated")
 print(f"✓ 1 comprehensive report generated")
 
 print("\nThank you for using the Farmer Development Analysis System!")
