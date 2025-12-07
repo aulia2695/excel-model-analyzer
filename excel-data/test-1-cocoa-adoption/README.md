@@ -46,15 +46,15 @@ This analysis automatically evaluates cocoa farming practices and calculates ado
 
 Excel file (`test_1_cocoa_adoption_raw.xlsx`) must contain these columns:
 
-| Column Name | Type | Description |
-|-------------|------|-------------|
+| Column Name |     Type    |        Description       |
+|-------------|-------------|--------------------------|
 | `farmer_id` | Text/Number | Unique farmer identifier |
-| `first_name` | Text | Farmer's first name |
-| `last_name` | Text | Farmer's last name |
-| `Farm size` | Number | Farm size in hectares |
-| `Region` | Text | Geographic region |
-| `gender` | Text | Farmer's gender |
-| `season` | Text | Planting/harvest season |
+| `first_name`| Text        | Farmer's first name      |
+| `last_name` | Text        | Farmer's last name       |
+| `Farm size` | Number      | Farm size in hectares    |
+| `Region`    | Text        | Geographic region        |
+| `gender`    | Text        | Farmer's gender          |
+| `season`    | Text        | Planting/harvest season  |
 
 ### Practice Columns (Used for Scoring)
 
@@ -188,52 +188,12 @@ test-1-cocoa-adoption/
 - Small elite group doing excellent
 - Small group needs urgent intervention
 
-**Recommended Actions:**
-- Focus training on moving Medium → Good
-- Share best practices from Good performers
-- Intensive support for Bad performers
-
-### For Different Users
-
-**Agricultural Extension Officers:**
-- Identify farmers needing support
-- Plan targeted training programs
-- Track improvement over time
-
-**Program Managers:**
-- Allocate resources to regions
-- Measure program effectiveness
-- Report to stakeholders
-
-**Researchers:**
-- Analyze adoption patterns
-- Study correlations between practices
-- Identify success factors
-
 ## Running the Analysis
 
-### Method 1: Locally
-```bash
-# Navigate to project directory
-cd excel-model-analyzer
-
-# Install dependencies
-pip install pandas openpyxl matplotlib seaborn numpy
-
-# Run analysis
-python excel-data/test-1-cocoa-adoption/scripts/test1_analysis.py
-```
-
-### Method 2: GitHub Actions (Automatic)
+### Method: GitHub Actions (Automatic)
 - Push changes to `excel-data/test-1-cocoa-adoption/**`
 - Analysis runs automatically
 - Results committed back to repository
-
-### Method 3: GitHub Actions (Manual)
-1. Go to repository **Actions** tab
-2. Click **"Test Cocoa Analysis"**
-3. Click **"Run workflow"**
-4. Download artifacts or view results in repository
 
 ## Expected Results
 
@@ -249,41 +209,6 @@ python excel-data/test-1-cocoa-adoption/scripts/test1_analysis.py
 - Medium datasets (1000-10000 rows): 15-30 seconds
 - Large datasets (>10000 rows): 30-60 seconds
 
-## Troubleshooting
-
-### Issue: "File not found" error
-**Solution:** 
-- Check that Excel file exists at `excel-data/test-1-cocoa-adoption/raw/test_1_cocoa_adoption_raw.xlsx`
-- Verify file name spelling and extension
-
-### Issue: "Column not found" error
-**Solution:** 
-- Verify Excel column names match exactly (case-sensitive)
-- Check for extra spaces in column names
-- Open Excel file and compare with required columns list above
-
-### Issue: All farmers scored as "Medium"
-**Solution:** 
-- Check if practice column values match the scoring keywords
-- May need to customize `score_practice()` function for your specific data values
-
-### Issue: Charts look wrong
-**Solution:** 
-- Verify data quality - check for unusual values or missing data
-- Look at the console output for data quality warnings
-
-### Issue: GitHub Actions fails
-**Solution:** 
-- Check the Actions tab logs for specific error messages
-- Verify all required files are in correct locations
-- Ensure Excel file is not corrupted
-
-### Issue: Results not showing in repository
-**Solution:**
-- Check if workflow has `contents: write` permission
-- Verify git commit step completed successfully in Actions logs
-- Look in `excel-data/test-1-cocoa-adoption/results/` and `excel-data/test-1-cocoa-adoption/cleaned/`
-
 ## Notes
 
 - **Data Privacy**: Farmer names are included in cleaned data files
@@ -291,11 +216,3 @@ python excel-data/test-1-cocoa-adoption/scripts/test1_analysis.py
 - **Updates**: When you update the Excel file, re-run the analysis to regenerate results
 - **Backup**: Original data is never modified - cleaned versions are saved separately
 - **Path Structure**: Results and cleaned data are now organized within the test-1-cocoa-adoption folder for better organization
-
-## Support
-
-For issues or questions:
-1. Check the troubleshooting section above
-2. Review the comprehensive report for analysis details
-3. Examine GitHub Actions logs for error messages
-4. Verify input data format matches requirements
