@@ -32,7 +32,7 @@ jobs:
         python excel-data/test-1-cocoa-adoption/scripts/test1_analysis.py
     
     - name: Upload results as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: cocoa-analysis-results
         path: results/
