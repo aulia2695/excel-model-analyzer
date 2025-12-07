@@ -24,106 +24,109 @@ test-2-farmer-development/
 
 ## Main Objectives
 
-### Exercise 1: Baseline Analysis
-Create a 2-pager report for chocolate maker clients covering:
+EXERCISE 1: Farmer Development Plan Analysis
+I need to create a 2-pager report with these specific analyses:
+Analysis 1.1: Baseline Distribution
+For the 14 Adoption Variables:
 
-**1. Adoption & Competence Baseline**
-- 14 Adoption variables analysis
-- Distribution: Good, Medium, Bad farmers
-- "Result" (current adoption) vs "Competence" (skillset)
+Calculate distribution of farmers across Good/Medium/Bad categories
+Based on "Result" (current adoption)
+Based on "Competence" (skillset)
+Show: What % of farmers are in each category (G/M/B) for each variable?
 
-**2. Progress Tracking**
-- % farmers making progress
-- % staying at same level
-- % deteriorating (1st to 2nd survey)
+Analysis 1.2: Progress Tracking
+Compare Visit 1 vs Visit 2:
 
-**3. Production Analysis (Yield)**
-Segmented by:
-- Gender (male/female farmers)
-- Land size: <2ha, 2-4ha, ≥4ha
+% farmers making progress (improved from visit 1 to 2)
+% farmers staying at same level (no change)
+% farmers deteriorating (got worse from visit 1 to 2)
 
-### Exercise 2: Living Income Dashboard
-Design visualization dashboard showing:
-- Living income benchmark
-- Actual farmer incomes
-- Income gaps
-- Key drivers and trends
+Analysis 1.3: Production (Yield) Baseline
+Calculate Average Production ("Farm: Production - last baseline KG") segmented by:
+By Gender:
 
-### Exercise 3: Data Collection System
-Set up production cost data collection at sample scale:
-- 200 farmers from 4 cooperatives (1,000 farmers each)
-- Survey on labor costs and input costs
-- Budget: ~5,000 EUR
+Male farmers: average yield
+Female farmers: average yield
 
-## Key Metrics
+By Land Size:
 
-### Living Income Components
-```
-Actual Income = (Cocoa Volume × Price) ÷ 0.72
-Price = 1,000 CFA/kg + 40 CFA/kg (premium)
-Cocoa Revenue = 72% of total farmer revenue
-Production Cost = Labor Cost + Input Cost
-```
+<2ha: average yield
+2-4ha: average yield
+≥4ha: average yield
 
-### Income Gap Calculation
-```
+Analysis 1.4: Recommendations
+Provide 2-3 most important recommendations for:
+
+Data completeness/quality during collection (for the upcoming 3,000 farmer survey)
+Data cleaning/quality checks for M&E Assistant and Operations Team
+
+
+EXERCISE 2: Living Income Dashboard Design
+Create a sketch/mockup of a Living Income Dashboard showing:
+Components to Include:
+Based on the DISCO framework, I need to visualize:
+
+Living Income Benchmark (from credible sources like Anker & Anker, LICOP, KIT)
+Actual Farmer Income - calculated from:
+
+Cocoa revenue = Volume sourced × Price (1000 CFA/kg + 40 CFA/kg premium)
+Total revenue = Cocoa revenue ÷ 0.72 (since cocoa is 72% of total income)
+Actual income = Total revenue - Production costs
+
+
 Living Income Gap = Benchmark - Actual Income
-```
+Production Costs breakdown (labor + inputs)
 
-## Data Collection Options
+Visualization Types:
 
-### Option A: Field Trainers
-- Cost: 200,000 CFA/month
-- Training: 100,000 CFA per trainer
-- Multi-tasking (surveys + farmer training)
+Use dummy data
+Sketch in PowerPoint/Excel (no sophisticated tools needed)
+Show chart types (bar charts, line graphs, gauges, etc.)
 
-### Option B: Consultant Surveyors
-- Cost: 30,000 CFA/day
-- Onboarding: ~1,000 EUR
-- Experienced in financial data collection
 
-## Analysis Checklist
+EXERCISE 3: Data Collection Plan for Production Costs
+Design the data collection system for measuring production costs from 200 farmers across 4 cooperatives.
+What I Need to Deliver:
+A) Data Collection Plan (max ½ page)
+Include:
 
-### Baseline Report
-- [ ] Analyze 14 adoption variables
-- [ ] Calculate farmer distribution (Good/Medium/Bad)
-- [ ] Track progress from 1st to 2nd survey
-- [ ] Segment yield by gender and land size
-- [ ] Provide data quality recommendations
+Who will collect data (choose between options below)
+Sample design: How to select 200 farmers from 4 cooperatives (1,000 farmers each)
+Timeline: Gantt chart showing survey schedule
+Organization: Org chart or responsibilities
+Instructions for MEV Assistant and Operations Team
 
-### Living Income System
-- [ ] Design dashboard mockup
-- [ ] Define data collection methodology
-- [ ] Create budget proposal
-- [ ] Develop implementation plan (Gantt/Org chart)
-- [ ] Set up quality control procedures
+B) Budget Breakdown
+Compare two options and choose one:
+Option 1: Dedicated Field Trainers (hired by cooperative)
 
-## Deliverables
-- ⬜ 2-pager baseline report
-- ⬜ Living Income Dashboard design
-- ⬜ Data collection plan (max ½ page)
-- ⬜ Budget breakdown
-- ⬜ Implementation timeline
-- ⬜ Data quality recommendations
+Cost: 200,000 CFA/month each
+Need training: 100,000 CFA per trainer
+Can do 5 surveys/day
+Multi-tasking (also do other work)
 
-## Sample Statistics
-- **Cooperatives**: 4 regions
-- **Total farmers per coop**: 1,000
-- **Sample size**: 200 farmers
-- **Survey duration**: 1 hour/farmer
-- **Max surveys/day**: 5 (including travel)
+Option 2: Consultant Surveyors
 
-## Tools & Technologies
-- **Data Analysis**: Excel, Python, R
-- **Visualization**: Power BI, Tableau, Excel charts
-- **Budget Planning**: Excel, Google Sheets
-- **Project Management**: Gantt charts, org diagrams
+Cost: 30,000 CFA/day each
+Onboarding: 1,000 EUR for all consultants
+Can do 5 surveys/day
+Already experienced, instantly available
 
-## References
-- DISCO Living Income Framework
-- Anker & Anker Methodology
-- KIT Demystifying Study
-- See `conditions/requirements.md` for full details
+Constraints:
+
+20 questions per survey
+1 hour per survey
+Maximum 5 surveys/day per surveyor
+Total budget: ~5,000 EUR
+Sample: 200 farmers from 4 cooperatives
+
+C) Document My Decision-Making
+Explain:
+
+My assumptions
+Why I chose this approach
+Alternative scenarios considered
+Follow-up questions I have
 
 ## Notes
 Focus on decision-making process and assumptions rather than finding "perfect" answers. Document all choices and rationale.
