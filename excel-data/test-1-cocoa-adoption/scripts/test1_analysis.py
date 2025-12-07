@@ -4,18 +4,40 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime
 import os
+from pathlib import Path
 
 # Set style for better-looking plots
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (12, 6)
 
-# Create results directory
-os.makedirs('results', exist_ok=True)
+# ============================================================================
+# PATH CONFIGURATION - UPDATED FOR NEW DIRECTORY STRUCTURE
+# ============================================================================
+
+# Get the directory where this script is located
+script_dir = Path(__file__).parent.absolute()
+
+# Navigate to the test-1-cocoa-adoption directory (parent of scripts/)
+test_dir = script_dir.parent
+
+# Define output directories (now inside test-1-cocoa-adoption/)
+results_dir = test_dir / "results"
+cleaned_dir = test_dir / "cleaned"
+
+# Create directories if they don't exist
+results_dir.mkdir(parents=True, exist_ok=True)
+cleaned_dir.mkdir(parents=True, exist_ok=True)
 
 print("=" * 80)
 print("COCOA ADOPTION ANALYSIS - AUTOMATED REPORT")
 print("=" * 80)
 print(f"Analysis Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+print("=" * 80)
+print(f"\n📁 Working Directories:")
+print(f"   Script location: {script_dir}")
+print(f"   Test directory:  {test_dir}")
+print(f"   Results folder:  {results_dir}")
+print(f"   Cleaned folder:  {cleaned_dir}")
 print("=" * 80)
 
 # ============================================================================
@@ -24,8 +46,9 @@ print("=" * 80)
 print("\n[STEP 1] Loading data...")
 
 try:
-    # Update this path to match your Excel file location
-    df = pd.read_excel('excel-data/test-1-cocoa-adoption/raw/test_1_cocoa_adoption_raw.xlsx')
+    # Path to raw data file (relative to test directory)
+    data_file = test_dir / "raw" / "test_1_cocoa_adoption_raw.xlsx"
+    df = pd.read_excel(data_file)
     print(f"✓ Data loaded successfully: {len(df)} rows, {len(df.columns)} columns")
     print(f"✓ Columns: {', '.join(df.columns)}")
 except Exception as e:
@@ -82,9 +105,10 @@ print(f"Farm size range: {df['Farm size'].min():.2f} - {df['Farm size'].max():.2
 print(f"IQR bounds: {lower_bound:.2f} - {upper_bound:.2f}")
 print(f"Found {len(outliers)} outliers (kept for analysis)")
 
-# Save cleaned data
-df.to_csv('results/cleaned_data.csv', index=False)
-print("\n✓ Cleaned data saved to 'results/cleaned_data.csv'")
+# Save cleaned data - UPDATED PATH
+cleaned_data_file = cleaned_dir / "cleaned_data.csv"
+df.to_csv(cleaned_data_file, index=False)
+print(f"\n✓ Cleaned data saved to '{cleaned_data_file}'")
 
 # ============================================================================
 # STEP 3: CALCULATE ADOPTION LEVEL
@@ -222,7 +246,7 @@ practice_df['Performance'] = practice_df['Avg_Score'].apply(
 )
 print(practice_df.to_string(index=False))
 
-# Save analysis results
+# Save analysis results - UPDATED PATH
 analysis_summary = pd.DataFrame({
     'Metric': ['Total Farmers', 'Good Adoption', 'Medium Adoption', 'Bad Adoption',
                'Avg Farm Size', 'Avg Adoption Score'],
@@ -233,7 +257,8 @@ analysis_summary = pd.DataFrame({
               df['Farm size'].mean(),
               df['Adoption_Percentage'].mean()]
 })
-analysis_summary.to_csv('results/analysis_summary.csv', index=False)
+analysis_summary_file = results_dir / "analysis_summary.csv"
+analysis_summary.to_csv(analysis_summary_file, index=False)
 
 # ============================================================================
 # STEP 5: DATA VISUALIZATION
@@ -247,7 +272,7 @@ adoption_counts = df['Adoption_Level'].value_counts()
 plt.pie(adoption_counts, labels=adoption_counts.index, autopct='%1.1f%%', 
         colors=colors, startangle=90)
 plt.title('Distribution of Cocoa Adoption Levels', fontsize=16, fontweight='bold')
-plt.savefig('results/01_adoption_distribution_pie.png', dpi=300, bbox_inches='tight')
+plt.savefig(results_dir / '01_adoption_distribution_pie.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("✓ Created: 01_adoption_distribution_pie.png")
 
@@ -259,7 +284,7 @@ plt.xlabel('Adoption Level', fontsize=12)
 plt.ylabel('Number of Farmers', fontsize=12)
 plt.xticks(rotation=0)
 plt.grid(axis='y', alpha=0.3)
-plt.savefig('results/02_adoption_distribution_bar.png', dpi=300, bbox_inches='tight')
+plt.savefig(results_dir / '02_adoption_distribution_bar.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("✓ Created: 02_adoption_distribution_bar.png")
 
@@ -270,7 +295,7 @@ plt.title('Farm Size Distribution by Adoption Level', fontsize=16, fontweight='b
 plt.suptitle('')  # Remove default title
 plt.xlabel('Adoption Level', fontsize=12)
 plt.ylabel('Farm Size (Ha)', fontsize=12)
-plt.savefig('results/03_farm_size_by_adoption_boxplot.png', dpi=300, bbox_inches='tight')
+plt.savefig(results_dir / '03_farm_size_by_adoption_boxplot.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("✓ Created: 03_farm_size_by_adoption_boxplot.png")
 
@@ -286,7 +311,7 @@ plt.xlabel('Farm Size (Ha)', fontsize=12)
 plt.ylabel('Adoption Percentage (%)', fontsize=12)
 plt.legend()
 plt.grid(True, alpha=0.3)
-plt.savefig('results/04_farm_size_vs_adoption_scatter.png', dpi=300, bbox_inches='tight')
+plt.savefig(results_dir / '04_farm_size_vs_adoption_scatter.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("✓ Created: 04_farm_size_vs_adoption_scatter.png")
 
@@ -301,7 +326,7 @@ plt.ylabel('Number of Farmers', fontsize=12)
 plt.legend(title='Adoption Level')
 plt.xticks(rotation=45, ha='right')
 plt.grid(axis='y', alpha=0.3)
-plt.savefig('results/05_adoption_by_region_stacked.png', dpi=300, bbox_inches='tight')
+plt.savefig(results_dir / '05_adoption_by_region_stacked.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("✓ Created: 05_adoption_by_region_stacked.png")
 
@@ -314,7 +339,7 @@ plt.title('Correlation Between Farming Practices', fontsize=16, fontweight='bold
 plt.xticks(rotation=45, ha='right')
 plt.yticks(rotation=0)
 plt.tight_layout()
-plt.savefig('results/06_practice_correlation_heatmap.png', dpi=300, bbox_inches='tight')
+plt.savefig(results_dir / '06_practice_correlation_heatmap.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("✓ Created: 06_practice_correlation_heatmap.png")
 
@@ -331,7 +356,7 @@ plt.axvline(x=1.33, color='green', linestyle='--', alpha=0.3, label='Medium/Good
 plt.legend()
 plt.grid(axis='x', alpha=0.3)
 plt.tight_layout()
-plt.savefig('results/07_practice_performance_ranking.png', dpi=300, bbox_inches='tight')
+plt.savefig(results_dir / '07_practice_performance_ranking.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("✓ Created: 07_practice_performance_ranking.png")
 
@@ -345,7 +370,7 @@ plt.ylabel('Number of Farmers', fontsize=12)
 plt.title('Distribution of Adoption Scores', fontsize=16, fontweight='bold')
 plt.legend()
 plt.grid(axis='y', alpha=0.3)
-plt.savefig('results/08_adoption_score_distribution.png', dpi=300, bbox_inches='tight')
+plt.savefig(results_dir / '08_adoption_score_distribution.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("✓ Created: 08_adoption_score_distribution.png")
 
@@ -466,33 +491,35 @@ report += f"""
 {'='*80}
 
 Data Files:
-  - results/cleaned_data.csv
-  - results/analysis_summary.csv
+  - {cleaned_dir}/cleaned_data.csv
+  - {results_dir}/analysis_summary.csv
 
 Visualizations:
-  - results/01_adoption_distribution_pie.png
-  - results/02_adoption_distribution_bar.png
-  - results/03_farm_size_by_adoption_boxplot.png
-  - results/04_farm_size_vs_adoption_scatter.png
-  - results/05_adoption_by_region_stacked.png
-  - results/06_practice_correlation_heatmap.png
-  - results/07_practice_performance_ranking.png
-  - results/08_adoption_score_distribution.png
+  - {results_dir}/01_adoption_distribution_pie.png
+  - {results_dir}/02_adoption_distribution_bar.png
+  - {results_dir}/03_farm_size_by_adoption_boxplot.png
+  - {results_dir}/04_farm_size_vs_adoption_scatter.png
+  - {results_dir}/05_adoption_by_region_stacked.png
+  - {results_dir}/06_practice_correlation_heatmap.png
+  - {results_dir}/07_practice_performance_ranking.png
+  - {results_dir}/08_adoption_score_distribution.png
 
 {'='*80}
 END OF REPORT
 {'='*80}
 """
 
-# Save report
-with open('results/COMPREHENSIVE_REPORT.txt', 'w', encoding='utf-8') as f:
+# Save report - UPDATED PATH
+report_file = results_dir / "COMPREHENSIVE_REPORT.txt"
+with open(report_file, 'w', encoding='utf-8') as f:
     f.write(report)
 
-print("✓ Comprehensive report saved to 'results/COMPREHENSIVE_REPORT.txt'")
+print(f"✓ Comprehensive report saved to '{report_file}'")
 
-# Also save enhanced data with adoption scores
-df.to_csv('results/data_with_adoption_scores.csv', index=False)
-print("✓ Enhanced data saved to 'results/data_with_adoption_scores.csv'")
+# Also save enhanced data with adoption scores - UPDATED PATH
+enhanced_data_file = results_dir / "data_with_adoption_scores.csv"
+df.to_csv(enhanced_data_file, index=False)
+print(f"✓ Enhanced data saved to '{enhanced_data_file}'")
 
 # Print summary to console
 print(report)
@@ -500,9 +527,9 @@ print(report)
 print("\n" + "="*80)
 print("ANALYSIS COMPLETE!")
 print("="*80)
-print(f"\n✓ All results saved in 'results/' folder")
-print(f"✓ {len([f for f in os.listdir('results') if f.endswith('.png')])} visualizations created")
-print(f"✓ {len([f for f in os.listdir('results') if f.endswith('.csv')])} data files generated")
+print(f"\n✓ All results saved in '{results_dir}/' folder")
+print(f"✓ {len([f for f in os.listdir(results_dir) if f.endswith('.png')])} visualizations created")
+print(f"✓ {len([f for f in os.listdir(results_dir) if f.endswith('.csv')])} data files generated")
 print(f"✓ 1 comprehensive report generated")
 print("\nThank you for using the Cocoa Adoption Analysis System!")
 print("="*80)
