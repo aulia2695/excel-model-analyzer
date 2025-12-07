@@ -30,6 +30,11 @@ try:
     df = pd.read_excel('excel-data/test-2-farmer-development/raw/test_2_farmer_development_raw.xlsx')
     print(f"✓ Data loaded successfully: {len(df)} rows, {len(df.columns)} columns")
     print(f"✓ Columns: {', '.join(df.columns)}")
+
+# Clean column names - remove extra spaces
+    df.columns = df.columns.str.strip()
+    print(f"✓ Cleaned column names")
+
 except Exception as e:
     print(f"✗ Error loading data: {e}")
     exit(1)
