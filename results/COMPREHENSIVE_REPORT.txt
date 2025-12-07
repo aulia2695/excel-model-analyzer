@@ -1,0 +1,124 @@
+
+================================================================================
+COCOA ADOPTION ANALYSIS - COMPREHENSIVE REPORT
+================================================================================
+Generated: 2025-12-07 00:29:21
+
+================================================================================
+1. EXECUTIVE SUMMARY
+================================================================================
+
+Total Farmers Analyzed: 1031
+Average Farm Size: 49.24 Ha
+Average Adoption Score: 50.30%
+
+Adoption Distribution:
+  - Good Adoption (≥66.7%):    113 farmers (11.0%)
+  - Medium Adoption (33.3-66.7%): 815 farmers (79.0%)
+  - Bad Adoption (<33.3%):     103 farmers (10.0%)
+
+================================================================================
+2. DATA QUALITY SUMMARY
+================================================================================
+
+Original Records: 1031
+Duplicates Removed: 0
+Missing Values: Yes
+Outliers Detected: 0 in Farm Size
+
+================================================================================
+3. KEY FINDINGS
+================================================================================
+
+3.1 Farm Size Analysis:
+                     mean  median        std   min    max
+Adoption_Level                                           
+Bad             46.956019   45.88  29.498998  1.33  99.48
+Good            49.897080   49.74  28.280980  1.54  96.11
+Medium          49.439362   49.44  28.663513  1.02  99.85
+
+3.2 Regional Performance:
+Adoption_Level        Bad       Good     Medium
+Region                                         
+Ambato           7.279693   8.812261  83.908046
+Cuenca           9.961686  11.877395  78.160920
+Guayaquil       10.389610  10.389610  79.220779
+Loja            12.230216  12.589928  75.179856
+
+3.3 Practice Performance (Top 5 and Bottom 5):
+
+TOP 5 PERFORMING PRACTICES:
+            Practice  Avg_Score Performance
+         Tree health   1.078565      Medium
+            Tree age   1.055286      Medium
+Debilitating disease   1.053346      Medium
+      Soil condition   1.051406      Medium
+             Weeding   1.045587      Medium
+
+BOTTOM 5 PERFORMING PRACTICES:
+              Practice  Avg_Score Performance
+      Shade management   0.979631      Medium
+        Organic matter   0.977692      Medium
+          Tree density   0.971872      Medium
+Fertilizer formulation   0.961203      Medium
+               Pruning   0.930165      Medium
+
+================================================================================
+4. ACTIONABLE RECOMMENDATIONS
+================================================================================
+
+Based on the analysis, here are key recommendations:
+
+4.1 PRIORITY AREAS FOR IMPROVEMENT:
+
+  1. Improve Tree density through training and support programs
+  2. Improve Fertilizer formulation through training and support programs
+  3. Improve Pruning through training and support programs
+
+4.2 REGIONAL FOCUS:
+
+  1. Increase support in Ambato region
+  2. Increase support in Guayaquil region
+  3. Increase support in Cuenca region
+
+4.3 FARM SIZE CONSIDERATIONS:
+
+  - Larger farms show better adoption. Consider scaling programs for smaller farms.
+
+4.4 BEST PRACTICES TO SCALE:
+
+  1. Scale successful Tree health approaches to other farmers
+  2. Scale successful Tree age approaches to other farmers
+  3. Scale successful Debilitating disease approaches to other farmers
+
+================================================================================
+5. NEXT STEPS
+================================================================================
+
+1. Targeted Training: Focus on bottom-performing practices
+2. Regional Support: Allocate resources to regions with low adoption
+3. Peer Learning: Connect high-adoption farmers with others
+4. Monitoring: Track adoption improvements quarterly
+5. Incentives: Consider rewards for adoption improvements
+
+================================================================================
+6. FILES GENERATED
+================================================================================
+
+Data Files:
+  - results/cleaned_data.csv
+  - results/analysis_summary.csv
+
+Visualizations:
+  - results/01_adoption_distribution_pie.png
+  - results/02_adoption_distribution_bar.png
+  - results/03_farm_size_by_adoption_boxplot.png
+  - results/04_farm_size_vs_adoption_scatter.png
+  - results/05_adoption_by_region_stacked.png
+  - results/06_practice_correlation_heatmap.png
+  - results/07_practice_performance_ranking.png
+  - results/08_adoption_score_distribution.png
+
+================================================================================
+END OF REPORT
+================================================================================
