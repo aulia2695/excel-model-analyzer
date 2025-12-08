@@ -1,0 +1,25 @@
+================================================================================
+DATA QUALITY RECOMMENDATIONS FOR 3,000 FARMER EXPANSION
+================================================================================
+
+
+DATA COMPLETENESS
+--------------------------------------------------------------------------------
+  1. Ensure all 14 adoption variables are captured consistently across all farmers
+  2. Mandate Visit Number field to track temporal changes effectively
+  3. Validate Farmer Code uniqueness to prevent duplicate entries
+  4. Require both Result AND Competence ratings for all variables
+
+DATA QUALITY
+--------------------------------------------------------------------------------
+  1. Implement dropdown validation for categorical fields (G/M/B, Gender, Village)
+  2. Add range validation for numeric fields (Production > 0, Farm Area > 0)
+  3. Create automated alerts for missing critical fields before survey completion
+  4. Standardize date formats and ensure Visit 2 date > Visit 1 date
+
+M&E ASSISTANT CHECKS
+--------------------------------------------------------------------------------
+  1. Daily reconciliation of surveys submitted vs. expected
+  2. Weekly outlier detection for production and farm area values
+  3. Cross-validation: Production should correlate with Farm Area
+  4. Flag farmers with deteriorating scores for follow-up visits
