@@ -20,7 +20,7 @@ class LivingIncomeDashboard:
         
         # Create figure with custom layout
         fig = plt.figure(figsize=(16, 12))
-        gs = fig.add_gridspec(4, 3, hspace=0.4, wspace=0.3)
+        gs = fig.add_gridspec(4, 4, hspace=0.4, wspace=0.3)  # Changed to 4 columns
         
         # Color scheme
         colors = {
@@ -35,30 +35,26 @@ class LivingIncomeDashboard:
         fig.suptitle('LIVING INCOME DASHBOARD - JB COCOA IVORY COAST', 
                      fontsize=20, fontweight='bold', y=0.98)
         
-        # 1. KPI Cards (Top Row)
+        # 1. KPI Cards (Top Row) - 4 cards
         self._create_kpi_cards(fig, gs, colors)
         
-        # 2. Income Gap Waterfall Chart
-        ax2 = fig.add_subplot(gs[1, :2])
+        # 2. Income Gap Waterfall Chart (spans 2 columns)
+        ax2 = fig.add_subplot(gs[1, 0:2])
         self._create_waterfall_chart(ax2, colors)
         
         # 3. Living Income Achievement Gauge
-        ax3 = fig.add_subplot(gs[1, 2])
+        ax3 = fig.add_subplot(gs[1, 2:4])
         self._create_gauge_chart(ax3, colors)
         
         # 4. Income Components Breakdown
-        ax4 = fig.add_subplot(gs[2, 0])
+        ax4 = fig.add_subplot(gs[2, 0:2])
         self._create_income_breakdown(ax4, colors)
         
         # 5. Cost Structure
-        ax5 = fig.add_subplot(gs[2, 1])
+        ax5 = fig.add_subplot(gs[2, 2:4])
         self._create_cost_structure(ax5, colors)
         
-        # 6. Regional Comparison
-        ax6 = fig.add_subplot(gs[2, 2])
-        self._create_regional_comparison(ax6, colors)
-        
-        # 7. Progress Over Time
+        # 6. Progress Over Time (full width)
         ax7 = fig.add_subplot(gs[3, :])
         self._create_progress_timeline(ax7, colors)
         
@@ -79,7 +75,7 @@ class LivingIncomeDashboard:
         ]
         
         for i, kpi in enumerate(kpis):
-            ax = fig.add_subplot(gs[0, i % 4])
+            ax = fig.add_subplot(gs[0, i])
             ax.axis('off')
             
             # Create card
@@ -102,7 +98,7 @@ class LivingIncomeDashboard:
     
     def _create_waterfall_chart(self, ax, colors):
         """Create waterfall chart showing income gap components"""
-        categories = ['Living Income\nBenchmark', 'Cocoa\nRevenue', 'Other\nRevenue', 
+        categories = ['LI\nBenchmark', 'Cocoa\nRevenue', 'Other\nRevenue', 
                      'Labor\nCosts', 'Input\nCosts', 'Actual\nIncome']
         values = [3612000, -2520000, -720000, 450000, 306000, 2856000]
         
@@ -193,27 +189,6 @@ class LivingIncomeDashboard:
         ax.set_title('Production Cost Structure', fontsize=12, fontweight='bold', pad=10)
         ax.grid(axis='x', alpha=0.3)
     
-    def _create_regional_comparison(self, ax, colors):
-        """Create regional comparison bar chart"""
-        regions = ['Coop A', 'Coop B', 'Coop C', 'Coop D']
-        benchmark = [3612000] * 4
-        actual = [2950000, 2700000, 3100000, 2600000]
-        
-        x = np.arange(len(regions))
-        width = 0.35
-        
-        ax.bar(x - width/2, benchmark, width, label='LI Benchmark', 
-              color=colors['primary'], alpha=0.7)
-        ax.bar(x + width/2, actual, width, label='Actual Income', 
-              color=colors['success'], alpha=0.7)
-        
-        ax.set_ylabel('Income (CFA)', fontsize=9, fontweight='bold')
-        ax.set_title('Regional Comparison', fontsize=12, fontweight='bold', pad=10)
-        ax.set_xticks(x)
-        ax.set_xticklabels(regions, fontsize=9)
-        ax.legend(fontsize=8)
-        ax.grid(axis='y', alpha=0.3)
-    
     def _create_progress_timeline(self, ax, colors):
         """Create timeline showing progress over quarters"""
         quarters = ['Q1 2023', 'Q2 2023', 'Q3 2023', 'Q4 2023', 'Q1 2024', 'Q2 2024']
@@ -290,19 +265,13 @@ DASHBOARD COMPONENTS:
    
    Rationale: Helps identify opportunities for income diversification
 
-5. COST STRUCTURE (Bottom Center)
+5. COST STRUCTURE (Bottom Right)
    Purpose: Analyze production cost components
    Shows: Labor, fertilizer, pesticide, other input costs
    
    Rationale: Identifies cost reduction opportunities
 
-6. REGIONAL COMPARISON (Bottom Right)
-   Purpose: Compare cooperatives against benchmark
-   Shows: Actual income vs. benchmark by cooperative
-   
-   Rationale: Identifies high/low performing regions for targeted intervention
-
-7. PROGRESS TIMELINE (Bottom Full Width)
+6. PROGRESS TIMELINE (Bottom Full Width)
    Purpose: Track income improvement over time
    Shows: Quarterly average income trend + # farmers surveyed
    
