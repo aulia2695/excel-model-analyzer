@@ -1,0 +1,91 @@
+
+================================================================================
+LIVING INCOME DASHBOARD - DESIGN RATIONALE
+================================================================================
+
+DASHBOARD COMPONENTS:
+
+1. KPI CARDS (Top Row)
+   Purpose: Quick overview of key metrics
+   Metrics:
+   - Average Actual Income (current farmer income)
+   - Living Income Benchmark (target)
+   - Income Gap (difference and %)
+   - % Farmers Below LI (population insight)
+   
+   Rationale: Executives need instant snapshot of program performance
+
+2. WATERFALL CHART (Middle Left)
+   Purpose: Visualize income gap components
+   Shows: Benchmark → Revenue sources → Cost deductions → Actual income
+   
+   Formula: Actual Income = Cocoa Revenue + Other Revenue - Labor Cost - Input Cost
+   
+   Rationale: Identifies which factors contribute most to income gap
+
+3. GAUGE CHART (Middle Right)
+   Purpose: Show overall achievement vs. benchmark
+   Displays: % of Living Income Benchmark achieved
+   
+   Calculation: (Actual Income / LI Benchmark) × 100
+   
+   Rationale: Visual indicator of progress toward goal
+
+4. INCOME BREAKDOWN (Bottom Left)
+   Purpose: Understand revenue diversification
+   Shows: % contribution from cocoa vs. other sources
+   
+   Assumption: 72% cocoa revenue (from baseline study)
+   
+   Rationale: Helps identify opportunities for income diversification
+
+5. COST STRUCTURE (Bottom Right)
+   Purpose: Analyze production cost components
+   Shows: Labor, fertilizer, pesticide, other input costs
+   
+   Rationale: Identifies cost reduction opportunities
+
+6. PROGRESS TIMELINE (Bottom Full Width)
+   Purpose: Track income improvement over time
+   Shows: Quarterly average income trend + # farmers surveyed
+   
+   Rationale: Demonstrates program impact and data collection scale
+
+================================================================================
+DATA REQUIREMENTS:
+
+Primary Data (Must Collect):
+✓ Cocoa production volume (kg/farmer)
+✓ Cocoa price received (CFA/kg)
+✓ Other crop revenue
+✓ Labor costs (hired + family labor valuation)
+✓ Input costs (fertilizer, pesticides)
+
+Secondary Data (Can Use Estimates Initially):
+✓ Living Income Benchmark (3,612,000 CFA - KIT/Anker methodology)
+✓ % Cocoa revenue of total income (72% from baseline study)
+
+Calculated Metrics:
+✓ Cocoa Revenue = Production (kg) × Price (CFA/kg)
+✓ Total Revenue = Cocoa Revenue / 0.72
+✓ Total Costs = Labor Costs + Input Costs
+✓ Actual Income = Total Revenue - Total Costs
+✓ Income Gap = LI Benchmark - Actual Income
+
+================================================================================
+IMPLEMENTATION NOTES:
+
+1. Start with simple calculations using averages
+2. As data collection scales to 3,000 farmers, add:
+   - Drill-down by village/cooperative
+   - Farmer-level income distribution histogram
+   - Intervention impact tracking
+   
+3. Update frequency: Quarterly (aligned with harvest cycles)
+
+4. Target audience: 
+   - Executives: KPI cards, gauge, timeline
+   - Program managers: Waterfall, regional comparison
+   - Field teams: Cost structure, income breakdown
+
+================================================================================

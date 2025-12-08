@@ -1,0 +1,178 @@
+
+================================================================================
+DATA COLLECTION PLAN: LIVING INCOME PRODUCTION COST SURVEY
+================================================================================
+MEV Assistant & Operations Team Implementation Guide
+
+PROJECT OVERVIEW
+----------------
+Objective: Collect baseline data on production costs (labor + inputs) from 200 
+          cocoa farmers across 4 cooperatives to enable Living Income monitoring
+
+Timeline: 8 weeks
+Budget: 3535.11 EUR
+
+================================================================================
+1. SAMPLING STRATEGY
+================================================================================
+
+Strategy: Stratified Random Sampling
+
+Sample Size: 200 farmers
+  • Cooperative A: 50 farmers
+  • Cooperative B: 50 farmers
+  • Cooperative C: 50 farmers
+  • Cooperative D: 50 farmers
+
+Selection Criteria:
+  ✓ Random selection from farmer database (1000 farmers/cooperative)
+  ✓ Minimum 30% female farmers for gender balance
+  ✓ Land size distribution: 40% <2ha, 40% 2-4ha, 20% ≥4ha
+  ✓ Include replacement list (10 farmers/coop) for non-respondents
+
+================================================================================
+2. DATA COLLECTION APPROACH
+================================================================================
+
+Selected Option: 2 Consultant Surveyors
+
+Rationale:
+  ✓ Instantly available (no recruitment delay)
+  ✓ Already experienced in financial data collection
+  ✓ No ongoing employment obligations
+  ✓ Cost-effective for one-time baseline survey
+
+Daily Capacity: 5 surveys per surveyor
+Total Duration: 20 days per surveyor
+
+Survey Scope: ~20 questions covering:
+  • Labor costs (hired labor + family labor valuation)
+  • Input costs (fertilizer quantities & prices)
+  • Pesticide costs (types & amounts)
+  • Other production expenses
+
+================================================================================
+3. IMPLEMENTATION TIMELINE
+================================================================================
+
+Week 1: Planning & Preparation
+  □ Finalize survey questionnaire with Sustainability Manager
+  □ Coordinate with 4 cooperatives for farmer lists
+  □ Select random sample + replacement farmers
+  □ Arrange onboarding session logistics
+
+Week 2: Onboarding & Pilot
+  □ Conduct 1-day onboarding for consultant surveyors
+  □ Review survey questions and data quality standards
+  □ Pilot test with 10 farmers (not in main sample)
+  □ Refine questionnaire based on pilot feedback
+
+Week 3-7: Data Collection
+  □ Deploy surveyors to cooperatives
+  □ Daily progress tracking by MEV Assistant
+  □ Immediate quality checks on completed surveys
+  □ Address any field issues promptly
+
+Week 8-9: Data Management
+  □ Data entry into centralized database
+  □ Run automated validation checks
+  □ Flag outliers for verification
+  □ Clean and finalize dataset
+
+Week 10: Analysis & Reporting
+  □ Calculate average production costs
+  □ Estimate actual farmer incomes
+  □ Generate Living Income Dashboard
+  □ Prepare report for Manager
+
+================================================================================
+4. ROLES & RESPONSIBILITIES
+================================================================================
+
+MEV Assistant:
+  • Overall project coordination
+  • Daily monitoring of survey progress
+  • First-level data quality checks
+  • Communication with consultants and cooperatives
+  • Escalation of issues to Manager
+
+Consultant Surveyors:
+  • Conduct farmer interviews (5/day each)
+  • Ensure data accuracy and completeness
+  • Submit surveys daily via mobile app/forms
+  • Report challenges immediately
+
+Operations Team:
+  • Facilitate access to farmers
+  • Provide local context and translation if needed
+  • Support logistics (meeting arrangements)
+
+Sustainability Manager:
+  • Provide cooperative contacts
+  • Review and approve survey questionnaire
+  • Address technical questions on cocoa practices
+
+================================================================================
+5. DATA QUALITY PROTOCOLS
+================================================================================
+
+During Collection:
+  ✓ Mandatory fields enforcement in survey tool
+  ✓ Range validation (costs must be > 0 and < reasonable max)
+  ✓ Cross-checks (e.g., fertilizer cost = quantity × price)
+  ✓ Daily review by MEV Assistant
+
+Post-Collection:
+  ✓ Completeness check: 100% of required fields filled
+  ✓ Outlier detection: Flag values >3 standard deviations from mean
+  ✓ Logical consistency: Production costs < cocoa revenue
+  ✓ Sample representativeness: Verify gender/land size distribution
+
+================================================================================
+6. BUDGET ALLOCATION
+================================================================================
+
+Total Budget: 3535.11 EUR 
+             (2,315,500 CFA)
+
+Breakdown:
+  • Consultant Surveyor Fees        1832.06 EUR (   1,200,000 CFA)
+  • Onboarding Session              1000.00 EUR (     655,000 CFA)
+  • Survey Materials                 152.67 EUR (     100,000 CFA)
+  • Data Management                  229.01 EUR (     150,000 CFA)
+  • Contingency (10%)                321.37 EUR (     210,500 CFA)
+  • TOTAL                           3535.11 EUR (   2,315,500 CFA)
+
+
+================================================================================
+7. KEY ASSUMPTIONS & FOLLOW-UP QUESTIONS
+================================================================================
+
+Assumptions Made:
+  • Survey duration: 1 hour per farmer (as advised)
+  • Surveyors can complete 5 surveys/day (including travel)
+  • Exchange rate: 655 CFA per EUR
+  • Farmers will be available and willing to participate
+  • Consultants can start immediately
+
+Questions for Manager:
+  1. Has the survey questionnaire been finalized and tested?
+  2. Are the 4 target cooperatives confirmed and willing to participate?
+  3. What is the contingency plan if consultants are unavailable?
+  4. Should we collect any additional data while surveying (e.g., farm GPS)?
+  5. What data storage/security protocols should be followed?
+
+================================================================================
+8. SUCCESS CRITERIA
+================================================================================
+
+  ✓ 200 surveys completed within budget and timeline
+  ✓ <5% missing data across all required fields
+  ✓ Data passes all quality validation checks
+  ✓ Living Income Dashboard successfully generated
+  ✓ Insights actionable for program improvement
+
+================================================================================
+PREPARED BY: MEV Specialist
+DATE: December 08, 2025
+================================================================================
