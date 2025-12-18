@@ -1,6 +1,12 @@
+"""
+test_volume.py - Modified
+Analyzer untuk data transaksi volume dengan output ke folder results
+"""
+
 import pandas as pd
 import numpy as np
 from datetime import datetime
+from pathlib import Path
 import os
 
 class VolumeQuotaAnalyzer:
@@ -9,35 +15,48 @@ class VolumeQuotaAnalyzer:
     Menganalisis apakah transaksi melebihi batas kouta yang ditentukan.
     """
     
-    def __init__(self, file_path, kouta_column='Kouta', netto_column='Netto Gudang (Kg)'):
+    def __init__(self, file_path, kouta_column='Kouta', netto_column='Netto Gudang (Kg)', output_dir=None):
         """
         Initialize analyzer dengan file path dan nama kolom.
         
         Args:
-            file_path: Path ke file Excel/CSV
+            file_path: Path ke file Excel/CSV (di folder raw)
             kouta_column: Nama kolom untuk kouta (default: 'Kouta')
             netto_column: Nama kolom untuk netto gudang (default: 'Netto Gudang (Kg)')
+            output_dir: Directory untuk output files (default: ../results)
         """
-        self.file_path = file_path
+        self.file_path = Path(file_path)
         self.kouta_column = kouta_column
         self.netto_column = netto_column
         self.df = None
         self.analysis_result = None
         
+        # Set output directory
+        if output_dir is None:
+            # Default: ../results dari lokasi file input
+            self.output_dir = self.file_path.parent.parent / "results"
+        else:
+            self.output_dir = Path(output_dir)
+        
+        # Buat folder results jika belum ada
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        print(f"📁 Output directory: {self.output_dir}")
+        
     def load_data(self):
         """Load data dari file Excel atau CSV"""
         try:
-            if self.file_path.endswith('.xlsx') or self.file_path.endswith('.xls'):
+            if self.file_path.suffix in ['.xlsx', '.xls']:
                 self.df = pd.read_excel(self.file_path)
-            elif self.file_path.endswith('.csv'):
+            elif self.file_path.suffix == '.csv':
                 self.df = pd.read_csv(self.file_path)
             else:
                 raise ValueError("Format file tidak didukung. Gunakan .xlsx, .xls, atau .csv")
             
-            print(f"✓ Data berhasil dimuat: {len(self.df)} baris")
+            print(f"✅ Data berhasil dimuat: {len(self.df)} baris")
+            print(f"   Source: {self.file_path}")
             return True
         except Exception as e:
-            print(f"✗ Error saat memuat data: {str(e)}")
+            print(f"❌ Error saat memuat data: {str(e)}")
             return False
     
     def validate_columns(self):
@@ -46,11 +65,11 @@ class VolumeQuotaAnalyzer:
         missing_columns = [col for col in required_columns if col not in self.df.columns]
         
         if missing_columns:
-            print(f"✗ Kolom tidak ditemukan: {', '.join(missing_columns)}")
+            print(f"❌ Kolom tidak ditemukan: {', '.join(missing_columns)}")
             print(f"Kolom yang tersedia: {', '.join(self.df.columns.tolist())}")
             return False
         
-        print("✓ Semua kolom diperlukan ditemukan")
+        print("✅ Semua kolom diperlukan ditemukan")
         return True
     
     def analyze_quota(self, group_by_columns=None):
@@ -64,7 +83,7 @@ class VolumeQuotaAnalyzer:
             DataFrame dengan hasil analisis
         """
         if self.df is None:
-            print("✗ Data belum dimuat. Gunakan load_data() terlebih dahulu.")
+            print("❌ Data belum dimuat. Gunakan load_data() terlebih dahulu.")
             return None
         
         # Jika tidak ada grouping, anggap semua data adalah satu grup
@@ -119,23 +138,32 @@ class VolumeQuotaAnalyzer:
             results.append(group_data)
         
         self.analysis_result = pd.concat(results, ignore_index=True)
+        print(f"✅ Analisis selesai: {len(self.analysis_result)} transaksi diproses")
         return self.analysis_result
     
-    def generate_report(self, output_file=None):
+    def generate_report(self, output_filename=None):
         """
         Generate laporan analisis dalam format yang mudah dibaca.
+        Output akan disimpan di folder results.
         
         Args:
-            output_file: Path untuk menyimpan laporan (opsional)
+            output_filename: Nama file output (default: laporan_analisis_kouta.txt)
         """
         if self.analysis_result is None:
-            print("✗ Belum ada hasil analisis. Jalankan analyze_quota() terlebih dahulu.")
-            return
+            print("❌ Belum ada hasil analisis. Jalankan analyze_quota() terlebih dahulu.")
+            return None
+        
+        if output_filename is None:
+            output_filename = "laporan_analisis_kouta.txt"
+        
+        output_path = self.output_dir / output_filename
         
         report_lines = []
         report_lines.append("=" * 80)
         report_lines.append("LAPORAN ANALISIS VOLUME KOUTA")
         report_lines.append("=" * 80)
+        report_lines.append(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        report_lines.append(f"Source: {self.file_path}")
         report_lines.append("")
         
         # Summary per grup (jika ada ID atau Nama Propper)
@@ -201,49 +229,62 @@ class VolumeQuotaAnalyzer:
         report_text = "\n".join(report_lines)
         print(report_text)
         
-        # Save ke file jika diminta
-        if output_file:
-            with open(output_file, 'w', encoding='utf-8') as f:
-                f.write(report_text)
-            print(f"\n✓ Laporan disimpan ke: {output_file}")
+        # Save ke file di folder results
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(report_text)
+        
+        print(f"\n✅ Laporan disimpan ke: {output_path}")
+        return output_path
     
-    def export_to_excel(self, output_file):
+    def export_to_excel(self, output_filename=None):
         """
-        Export hasil analisis ke file Excel dengan formatting.
+        Export hasil analisis ke file Excel di folder results.
         
         Args:
-            output_file: Path untuk file Excel output
+            output_filename: Nama file output (default: hasil_analisis_kouta.xlsx)
         """
         if self.analysis_result is None:
-            print("✗ Belum ada hasil analisis. Jalankan analyze_quota() terlebih dahulu.")
-            return
+            print("❌ Belum ada hasil analisis. Jalankan analyze_quota() terlebih dahulu.")
+            return None
+        
+        if output_filename is None:
+            output_filename = "hasil_analisis_kouta.xlsx"
+        
+        output_path = self.output_dir / output_filename
         
         try:
-            with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
+            with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
                 self.analysis_result.to_excel(writer, index=False, sheet_name='Analisis Kouta')
             
-            print(f"✓ Data berhasil diekspor ke: {output_file}")
+            print(f"✅ Data berhasil diekspor ke: {output_path}")
+            return output_path
         except Exception as e:
-            print(f"✗ Error saat mengekspor data: {str(e)}")
+            print(f"❌ Error saat mengekspor data: {str(e)}")
+            return None
 
 
 def main():
     """
     Fungsi utama untuk menjalankan analisis.
-    Sesuaikan parameter sesuai kebutuhan.
+    Output akan disimpan di folder results.
     """
     
     # ==========================
     # KONFIGURASI
     # ==========================
     
-    # Path ke file data (sesuaikan dengan lokasi file Anda)
-    file_path = "volumen_contoh_sedia.xlsx"  # Atau .csv
+    # Path relatif dari script ke file data di folder raw
+    script_dir = Path(__file__).parent
+    raw_dir = script_dir.parent / "raw"
+    results_dir = script_dir.parent / "results"
+    
+    # Path ke file data (di folder raw)
+    file_path = raw_dir / "volumen_contoh_sedia.xlsx"
     
     # Kolom untuk grouping (jika ingin analisis per farmer/propper)
     group_by = ['ID', 'Nama Propper']  # Set None jika tidak perlu grouping
     
-    # Output files
+    # Output files (akan disimpan di folder results)
     report_file = "laporan_analisis_kouta.txt"
     excel_output = "hasil_analisis_kouta.xlsx"
     
@@ -255,8 +296,8 @@ def main():
     print("VOLUME QUOTA ANALYZER")
     print("="*80 + "\n")
     
-    # 1. Inisialisasi analyzer
-    analyzer = VolumeQuotaAnalyzer(file_path)
+    # 1. Inisialisasi analyzer dengan output_dir
+    analyzer = VolumeQuotaAnalyzer(file_path, output_dir=results_dir)
     
     # 2. Load data
     if not analyzer.load_data():
@@ -271,16 +312,15 @@ def main():
     result = analyzer.analyze_quota(group_by_columns=group_by)
     
     if result is not None:
-        print(f"✓ Analisis selesai: {len(result)} transaksi diproses\n")
+        # 5. Generate laporan (output ke results)
+        analyzer.generate_report(output_filename=report_file)
         
-        # 5. Generate laporan
-        analyzer.generate_report(output_file=report_file)
-        
-        # 6. Export ke Excel
-        analyzer.export_to_excel(excel_output)
+        # 6. Export ke Excel (output ke results)
+        analyzer.export_to_excel(output_filename=excel_output)
         
         print("\n" + "="*80)
         print("ANALISIS SELESAI")
+        print(f"Output location: {results_dir}")
         print("="*80)
 
 
