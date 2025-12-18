@@ -12,10 +12,10 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.9'
     
@@ -24,16 +24,29 @@ jobs:
         cd excel-data/test-4-volume/scripts
         pip install -r requirements.txt
     
-    - name: Run tests
+    - name: Test Data Loader
       run: |
         cd excel-data/test-4-volume/scripts
         python data_loader.py
+    
+    - name: Test Quota Analyzer
+      run: |
+        cd excel-data/test-4-volume/scripts
         python quota_analyzer.py
+    
+    - name: Test Report Generator
+      run: |
+        cd excel-data/test-4-volume/scripts
         python report_generator.py
+    
+    - name: Run Full Analysis
+      run: |
+        cd excel-data/test-4-volume/scripts
+        python run_analysis.py
     
     - name: Upload test results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-results
         path: excel-data/test-4-volume/cleaned/
