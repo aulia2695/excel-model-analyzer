@@ -1,63 +1,104 @@
 """
 config.py
-Konfigurasi untuk Volume Quota Analyzer
+Konfigurasi untuk output ke folder results
 """
 
 import os
+from pathlib import Path
 
-# ===========================
+# =====================================================
 # PATH CONFIGURATION
-# ===========================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-RAW_DATA_PATH = os.path.join(BASE_DIR, "..", "raw")
-CLEANED_DATA_PATH = os.path.join(BASE_DIR, "..", "cleaned")
+# =====================================================
 
-# Buat folder cleaned jika belum ada
-os.makedirs(CLEANED_DATA_PATH, exist_ok=True)
+# Dapatkan path absolut dari script directory
+SCRIPT_DIR = Path(__file__).parent.absolute()
 
-# ===========================
-# FILE CONFIGURATION
-# ===========================
-INPUT_FILE = "volumen_contoh_sedia.xlsx"  # Sesuaikan dengan nama file Anda
-OUTPUT_EXCEL = "hasil_analisis_kouta.xlsx"
-OUTPUT_REPORT = "laporan_analisis.txt"
-OUTPUT_SUMMARY = "summary_kouta.csv"
+# Path ke folder raw (data input)
+RAW_DATA_PATH = SCRIPT_DIR.parent / "raw"
 
-# ===========================
+# Path ke folder results (data output)
+RESULTS_PATH = SCRIPT_DIR.parent / "results"
+
+# Buat folder results jika belum ada
+RESULTS_PATH.mkdir(parents=True, exist_ok=True)
+
+# Alias untuk backward compatibility
+CLEANED_DATA_PATH = RESULTS_PATH
+
+# =====================================================
+# INPUT FILES
+# =====================================================
+
+# Nama file input (di folder raw)
+INPUT_FILENAME = "volumen_contoh_sedia.xlsx"  # Sesuaikan dengan nama file Anda
+INPUT_FILE = RAW_DATA_PATH / INPUT_FILENAME
+
+# =====================================================
+# OUTPUT FILES (semua di folder results)
+# =====================================================
+
+# Excel output
+OUTPUT_EXCEL = RESULTS_PATH / "analisis_kouta_lengkap.xlsx"
+
+# Report text
+OUTPUT_REPORT = RESULTS_PATH / "laporan_detail_kouta.txt"
+
+# Summary CSV
+OUTPUT_SUMMARY = RESULTS_PATH / "summary_per_farmer.csv"
+
+# Dashboard PNG
+OUTPUT_DASHBOARD = RESULTS_PATH / "dashboard_kouta.png"
+
+# Individual charts
+OUTPUT_CHART_STATUS = RESULTS_PATH / "chart_status_distribution.png"
+OUTPUT_CHART_TOP = RESULTS_PATH / "chart_top_overquota.png"
+OUTPUT_CHART_VOLUME = RESULTS_PATH / "chart_volume_distribution.png"
+
+# =====================================================
 # COLUMN NAMES
-# ===========================
-COL_TANGGAL = "Tanggal Transaksi"
-COL_ID = "ID"
-COL_NAMA = "Nama Propper"
-COL_KOUTA = "Kouta"
-COL_NETTO = "Netto Gudang (Kg)"
-COL_STATUS_PROGRAM = "Status Program"
-COL_STATUS_KAWASAN = "Status Kawasan"
+# =====================================================
 
-# Kolom yang akan ditambahkan
-COL_TOTAL_KUMULATIF = "Total_Kumulatif"
-COL_SISA_KOUTA = "Sisa_Kouta"
-COL_STATUS_KOUTA = "Status_Kouta"
-COL_SEHARUSNYA = "Seharusnya_Input"
-COL_KELEBIHAN = "Kelebihan"
-COL_KETERANGAN = "Keterangan"
+COL_ID = 'ID'
+COL_NAMA = 'Nama Propper'
+COL_TANGGAL = 'Tanggal Transaksi'
+COL_NETTO = 'Netto Gudang (Kg)'
+COL_KOUTA = 'Kouta'
 
-# ===========================
-# ANALYSIS PARAMETERS
-# ===========================
-GROUP_BY_COLUMNS = [COL_ID, COL_NAMA]  # Grouping per farmer
-DATE_FORMAT = "%d/%m/%Y"  # Format tanggal output
+# =====================================================
+# STATUS VALUES
+# =====================================================
 
-# ===========================
-# STATUS LABELS
-# ===========================
-STATUS_DI_BAWAH = "Di Bawah Kouta"
-STATUS_OVERQUOTA = "OVERQOUTA"
-KETERANGAN_OVERQUOTA = "TRANSAKSI OVERQOUTA"
+STATUS_DI_BAWAH = 'Di Bawah Kouta'
+STATUS_OVERQUOTA = 'OVERQOUTA'
 
-# ===========================
-# DISPLAY SETTINGS
-# ===========================
-DECIMAL_PLACES = 2  # Jumlah desimal untuk angka
+# =====================================================
+# UI ELEMENTS
+# =====================================================
+
 SEPARATOR_LINE = "=" * 80
-SEPARATOR_DASH = "-" * 80
+
+# =====================================================
+# DISPLAY CONFIGURATION
+# =====================================================
+
+def print_paths():
+    """Print semua path untuk debugging"""
+    print(SEPARATOR_LINE)
+    print("KONFIGURASI PATH")
+    print(SEPARATOR_LINE)
+    print(f"Script Directory : {SCRIPT_DIR}")
+    print(f"Raw Data Path    : {RAW_DATA_PATH}")
+    print(f"Results Path     : {RESULTS_PATH}")
+    print(f"Input File       : {INPUT_FILE}")
+    print(f"Output Excel     : {OUTPUT_EXCEL}")
+    print(f"Output Report    : {OUTPUT_REPORT}")
+    print(f"Output Dashboard : {OUTPUT_DASHBOARD}")
+    print(SEPARATOR_LINE)
+
+
+if __name__ == "__main__":
+    print_paths()
+    
+    # Test: create results folder
+    print(f"\n✅ Results folder created at: {RESULTS_PATH}")
+    print(f"   Exists: {RESULTS_PATH.exists()}")
