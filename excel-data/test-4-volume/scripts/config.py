@@ -30,7 +30,7 @@ CLEANED_DATA_PATH = RESULTS_PATH
 # =====================================================
 
 # Nama file input (di folder raw)
-INPUT_FILENAME = "volumen contoh sedia.xlsx"  # Sesuaikan dengan nama file Anda
+INPUT_FILENAME = "volumen_contoh_sedia.xlsx"  # Sesuaikan dengan nama file Anda
 INPUT_FILE = RAW_DATA_PATH / INPUT_FILENAME
 
 # =====================================================
