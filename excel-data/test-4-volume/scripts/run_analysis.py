@@ -81,11 +81,24 @@ def main():
         # STEP 4: GENERATE REPORTS
         # =====================
         print(f"\n{SEPARATOR_LINE}")
-        print("STEP 4/4: GENERATING REPORTS")
+        print("STEP 4/5: GENERATING REPORTS")
         print(f"{SEPARATOR_LINE}")
         
         reporter = ReportGenerator(df_analyzed, summary)
         results = reporter.generate_all()
+        
+        # =====================
+        # STEP 5: GENERATE DASHBOARD
+        # =====================
+        print(f"\n{SEPARATOR_LINE}")
+        print("STEP 5/5: GENERATING DASHBOARD")
+        print(f"{SEPARATOR_LINE}")
+        
+        dashboard_gen = DashboardGenerator(summary, df_analyzed)
+        dashboard_path = dashboard_gen.generate_dashboard()
+        
+        # Optional: Generate individual charts
+        # dashboard_gen.generate_simple_charts()
         
         # =====================
         # COMPLETION
@@ -101,6 +114,12 @@ def main():
         
         print(f"\n📁 OUTPUT LOCATION:")
         print(f"   {CLEANED_DATA_PATH}")
+        
+        print(f"\n📊 OUTPUT FILES:")
+        print(f"   1. {OUTPUT_EXCEL} - Excel with 3 sheets")
+        print(f"   2. {OUTPUT_REPORT} - Detailed text report")
+        print(f"   3. {OUTPUT_SUMMARY} - CSV summary")
+        print(f"   4. dashboard_kouta.png - Visual dashboard")
         
         print(f"\n💡 NEXT STEPS:")
         print(f"   1. Review the Excel file: {OUTPUT_EXCEL}")
