@@ -1,65 +1,46 @@
-name: Volume Quota Analyzer Tests
+name: Excel Volume Analysis
 
 on:
   push:
-    branches: [ main, develop ]
-  pull_request:
     branches: [ main ]
+    paths:
+      - 'excel-data/test-4-volume/raw/**'
+      - 'excel-data/test-4-volume/scripts/**'
+  workflow_dispatch:
 
 jobs:
-  test:
+  analyze:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v3
     
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
-    
-    - name: Display repository structure
-      run: |
-        echo "=== Repository Structure ==="
-        ls -la
-        echo ""
-        echo "=== Excel Data Structure ==="
-        ls -la excel-data/ || echo "excel-data/ not found"
-        echo ""
-        echo "=== Test 4 Volume Structure ==="
-        ls -la excel-data/test-4-volume/ || echo "test-4-volume/ not found"
-        echo ""
-        echo "=== Scripts Directory ==="
-        ls -la excel-data/test-4-volume/scripts/ || echo "scripts/ not found"
+        python-version: '3.10'
     
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pandas openpyxl xlsxwriter numpy
-    
-    - name: Verify Python packages
+        pip install pandas openpyxl matplotlib seaborn
+
+    - name: Run analysis
+      working-directory: excel-data/test-4-volume/scripts
       run: |
-        python -c "import pandas; print(f'pandas: {pandas.__version__}')"
-        python -c "import openpyxl; print(f'openpyxl: {openpyxl.__version__}')"
-        python -c "import numpy; print(f'numpy: {numpy.__version__}')"
+        python run_analysis.py
     
-    - name: Check Python syntax of all scripts
-      run: |
-        cd excel-data/test-4-volume/scripts
-        python -m py_compile config.py || echo "config.py failed"
-        python -m py_compile data_loader.py || echo "data_loader.py failed"
-        python -m py_compile quota_analyzer.py || echo "quota_analyzer.py failed"
-        python -m py_compile report_generator.py || echo "report_generator.py failed"
-        python -m py_compile run_analysis.py || echo "run_analysis.py failed"
+    - name: Upload results as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: analysis-results
+        path: excel-data/test-4-volume/results/
+        retention-days: 30
     
-    - name: Summary
+    - name: Commit and push results
       run: |
-        echo "=== Test Summary ==="
-        echo "✓ Repository checked out successfully"
-        echo "✓ Python 3.9 installed"
-        echo "✓ All dependencies installed"
-        echo "✓ Python syntax check completed"
-        echo ""
-        echo "Note: Full analysis skipped (no data files in repository)"
-        echo "This is expected for CI/CD without sample data"
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add excel-data/test-4-volume/results/
+        git diff --quiet && git diff --staged --quiet || (git commit -m "📊 Update analysis results [skip ci]" && git push)
