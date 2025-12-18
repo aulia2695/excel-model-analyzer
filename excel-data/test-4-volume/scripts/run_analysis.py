@@ -49,19 +49,27 @@ def main():
             print(f"\n❌ FAILED: Could not load data")
             sys.exit(1)
         
-        # =====================
-        # STEP 2: VALIDATE
-        # =====================
-        print(f"\n{SEPARATOR_LINE}")
-        print("STEP 2/4: VALIDATING DATA")
-        print(f"{SEPARATOR_LINE}")
-        
-        if not loader.validate_columns():
-            print(f"\n❌ FAILED: Data validation failed")
-            sys.exit(1)
-        
-        # Preprocess
-        df = loader.preprocess_data()
+       # =====================
+# STEP 2: VALIDATE
+# =====================
+print(f"\n{SEPARATOR_LINE}")
+print("STEP 2/4: VALIDATING DATA")
+print(f"{SEPARATOR_LINE}")
+
+# Debug: print kolom yang ada
+print(f"\nKolom yang tersedia di file Excel:")
+print(df.columns.tolist())
+
+print(f"\nKolom yang diperlukan:")
+print(f"- {COL_ID}")
+print(f"- {COL_NAMA}")
+print(f"- {COL_TANGGAL}")
+print(f"- {COL_NETTO}")
+print(f"- {COL_KOUTA}")
+
+if not loader.validate_columns():
+    print(f"\n❌ FAILED: Data validation failed")
+    sys.exit(1)
         
         # =====================
         # STEP 3: ANALYZE
