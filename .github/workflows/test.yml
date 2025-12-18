@@ -32,7 +32,7 @@ jobs:
         python run_analysis.py
     
     - name: Upload results as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: analysis-results
         path: excel-data/test-4-volume/results/
